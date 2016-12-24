@@ -1,0 +1,12 @@
+._app {
+  padding-top: 0 !important;
+}
+
+._header {
+  display: none !important;
+}
+
+._sidebar {
+  top: 0 !important;
+  margin-top: 0 !important;
+}
