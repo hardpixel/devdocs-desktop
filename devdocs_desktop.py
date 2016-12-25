@@ -103,16 +103,25 @@ class DevdocsDesktop:
 		self.webview.execute_script(script)
 
 	def on_menu_main_link_clicked(self, widget):
-		name = Gtk.Buildable.get_name(widget).split('_')[-1]
-		name = '' if name == 'home' else name
+		link = Gtk.Buildable.get_name(widget).split('_')[-1]
+		link = '/' if link == 'home' else '/' + link
 
-		self.webview.load_uri(self.app_url + '/' + name)
+		self.header_search.set_text('')
+		self.js_click_element('a[href="' + link + '"]')
 
 	def on_webview_load_commited(self, _widget, _frame):
 		self.update_history_buttons()
 
 	def on_webview_title_changed(self, _widget, _frame, title):
 		self.header_title.set_label(title)
+
+	def js_click_element(self, selector):
+		script = """
+		var sl = document.querySelectorAll('""" + selector + """')[0];
+		if (sl !== undefined) { sl.click(); }
+		"""
+
+		self.webview.execute_script(script)
 
 
 if __name__ == '__main__':
