@@ -67,10 +67,14 @@ class DevdocsDesktop:
 
 	def on_window_main_key_release_event(self, widget, event):
 		kname = Gdk.keyval_name(event.keyval)
+		text = self.header_search.get_text()
 
 		if kname == 'Escape':
 			self.header_search.set_text('')
 			self.header_search.grab_focus()
+
+		if kname == 'Tab' and text:
+			self.webview.grab_focus()
 
 	def on_header_search_entry_key_release_event(self, widget, event):
 		kname = Gdk.keyval_name(event.keyval)
