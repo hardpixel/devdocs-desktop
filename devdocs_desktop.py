@@ -17,7 +17,7 @@ class DevdocsDesktop:
 		self.app_url = 'https://devdocs.io'
 
 		self.main = Gtk.Builder()
-		self.main.add_from_file('ui/main.ui')
+		self.main.add_from_file(self.file_path('ui/main.ui'))
 		self.main.connect_signals(self)
 
 		self.webview = WebKit.WebView()
@@ -46,8 +46,12 @@ class DevdocsDesktop:
 	def quit(self):
 		Gtk.main_quit()
 
+	def file_path(self, filepath):
+		root = os.path.dirname(os.path.realpath(__file__))
+		return os.path.join(root, filepath)
+
 	def set_webview_settings(self):
-		userstyle = 'file://' + os.path.abspath('styles/user.css')
+		userstyle = 'file://' + self.file_path('styles/user.css')
 		settings  = self.webview.get_settings()
 
 		settings.set_property('enable-plugins', False)
