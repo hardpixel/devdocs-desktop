@@ -81,6 +81,7 @@ class DevdocsDesktop:
 
 		if kname == 'Return':
 			self.webview.grab_focus()
+			self.js_click_element('._list-result.focus')
 
 	def on_header_button_back_clicked(self, _widget):
 		self.webview.go_back()
