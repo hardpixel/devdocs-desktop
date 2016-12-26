@@ -85,12 +85,15 @@ class DevdocsDesktop:
 
 	def on_header_button_back_clicked(self, _widget):
 		self.webview.go_back()
+		self.header_search.set_text('')
 
 	def on_header_button_forward_clicked(self, _widget):
 		self.webview.go_forward()
+		self.header_search.set_text('')
 
 	def on_header_button_reload_clicked(self, _widget):
 		self.webview.reload()
+		self.header_search.set_text('')
 
 	def on_header_search_entry_search_changed(self, widget):
 		text = widget.get_text()
@@ -98,10 +101,10 @@ class DevdocsDesktop:
 
 	def on_menu_main_link_clicked(self, widget):
 		link = Gtk.Buildable.get_name(widget).split('_')[-1]
-		link = '/' if link == 'home' else '/' + link
+		link = '' if link == 'home' else link
 
 		self.header_search.set_text('')
-		self.js_click_element('a[href="' + link + '"]')
+		self.js_click_element('a[href="/' + link + '"]')
 
 	def on_webview_load_commited(self, _widget, _frame):
 		self.update_history_buttons()
@@ -111,19 +114,19 @@ class DevdocsDesktop:
 
 	def js_form_input(self, text):
 		script = """
-		var fi = document.querySelectorAll('._search-input')[0];
-		var fe = document.querySelectorAll('._search')[0];
+		var fi = $('._search-input');
+		var fe = $('._search');
 		var ev = new CustomEvent('input');
-		if (fi !== undefined) { fi.value = '""" + text + """' };
-		if (fe !== undefined) { fe.dispatchEvent(ev); }
+		if (fi) { fi.value = '""" + text + """' };
+		if (fe) { fe.dispatchEvent(ev); }
 		"""
 
 		self.webview.execute_script(script)
 
 	def js_click_element(self, selector):
 		script = """
-		var sl = document.querySelectorAll('""" + selector + """')[0];
-		if (sl !== undefined) { sl.click(); }
+		var sl = $('""" + selector + """');
+		if (sl) { sl.click(); }
 		"""
 
 		self.webview.execute_script(script)
