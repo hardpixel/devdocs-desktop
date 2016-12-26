@@ -93,15 +93,8 @@ class DevdocsDesktop:
 		self.webview.reload()
 
 	def on_header_search_entry_search_changed(self, widget):
-		script = """
-		var search = document.querySelectorAll('._search-input')[0];
-		var form = document.querySelectorAll('._search')[0];
-		var input = new CustomEvent('input');
-		search.value = '""" + widget.get_text() + """';
-		form.dispatchEvent(input);
-		"""
-
-		self.webview.execute_script(script)
+		text = widget.get_text()
+		self.js_form_input(text)
 
 	def on_menu_main_link_clicked(self, widget):
 		link = Gtk.Buildable.get_name(widget).split('_')[-1]
@@ -115,6 +108,17 @@ class DevdocsDesktop:
 
 	def on_webview_title_changed(self, _widget, _frame, title):
 		self.header_title.set_label(title)
+
+	def js_form_input(self, text):
+		script = """
+		var fi = document.querySelectorAll('._search-input')[0];
+		var fe = document.querySelectorAll('._search')[0];
+		var ev = new CustomEvent('input');
+		if (fi !== undefined) { fi.value = '""" + text + """' };
+		if (fe !== undefined) { fe.dispatchEvent(ev); }
+		"""
+
+		self.webview.execute_script(script)
 
 	def js_click_element(self, selector):
 		script = """
