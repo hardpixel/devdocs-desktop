@@ -3,6 +3,7 @@
 import os
 import gi
 import signal
+import argparse
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
@@ -14,7 +15,11 @@ from gi.repository import Gtk, Gdk, WebKit, Soup
 class DevdocsDesktop:
 
 	def __init__(self):
+		self.args = argparse.ArgumentParser(prog='devdocs-desktop')
+		self.args.add_argument('s', metavar='STR', help='the string to search')
+
 		self.app_url = 'https://devdocs.io'
+		self.search  = self.args.parse_args().s
 		self.session = WebKit.get_default_session()
 
 		self.main = Gtk.Builder()
@@ -22,7 +27,7 @@ class DevdocsDesktop:
 		self.main.connect_signals(self)
 
 		self.webview = WebKit.WebView()
-		self.webview.load_uri(self.app_url)
+		self.webview.load_uri(self.url_with_search())
 		self.set_webview_settings()
 
 		self.webview.connect('load-committed', self.on_webview_load_commited)
@@ -37,6 +42,7 @@ class DevdocsDesktop:
 
 		self.header_search = self.main.get_object('header_search_entry')
 		self.header_search.get_style_context().remove_class('search')
+		self.header_search.set_text(self.search)
 
 		self.window = self.main.get_object('window_main')
 		self.window.show_all()
@@ -49,6 +55,9 @@ class DevdocsDesktop:
 
 	def quit(self):
 		Gtk.main_quit()
+
+	def url_with_search(self):
+		return self.app_url + '#q=' + self.search
 
 	def create_settings_path(self):
 		directory = self.settings_path()
