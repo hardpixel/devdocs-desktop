@@ -8,13 +8,14 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 gi.require_version('WebKit', '3.0')
 
-from gi.repository import Gtk, Gdk, WebKit
+from gi.repository import Gtk, Gdk, WebKit, Soup
 
 
 class DevdocsDesktop:
 
 	def __init__(self):
 		self.app_url = 'https://devdocs.io'
+		self.session = WebKit.get_default_session()
 
 		self.main = Gtk.Builder()
 		self.main.add_from_file(self.file_path('ui/main.ui'))
@@ -40,11 +41,24 @@ class DevdocsDesktop:
 		self.window = self.main.get_object('window_main')
 		self.window.show_all()
 
+		self.create_settings_path()
+		self.enable_persistent_cookies()
+
 	def run(self):
 		Gtk.main()
 
 	def quit(self):
 		Gtk.main_quit()
+
+	def create_settings_path(self):
+		directory = self.settings_path()
+
+		if not os.path.exists(directory):
+			os.makedirs(directory)
+
+	def settings_path(self, filepath=''):
+		root = os.path.expanduser('~') + '/.devdocs-desktop'
+		return os.path.join(root, filepath)
 
 	def file_path(self, filepath):
 		root = os.path.dirname(os.path.realpath(__file__))
@@ -58,6 +72,12 @@ class DevdocsDesktop:
 		settings.set_property('enable-java-applet', False)
 		settings.set_property('enable-default-context-menu', False)
 		settings.set_property('user-stylesheet-uri', userstyle)
+
+	def enable_persistent_cookies(self):
+		cookiefile = self.settings_path('cookies.txt')
+		cookiejar = Soup.CookieJarText.new(cookiefile, False)
+		cookiejar.set_accept_policy(Soup.CookieJarAcceptPolicy.ALWAYS)
+		self.session.add_feature(cookiejar)
 
 	def update_history_buttons(self):
 		back = self.webview.can_go_back()
