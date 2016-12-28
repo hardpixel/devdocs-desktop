@@ -16,7 +16,7 @@ class DevdocsDesktop:
 
 	def __init__(self):
 		self.args = argparse.ArgumentParser(prog='devdocs-desktop')
-		self.args.add_argument('s', metavar='STR', help='the string to search')
+		self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 
 		self.app_url = 'https://devdocs.io'
 		self.search  = self.args.parse_args().s
@@ -107,6 +107,9 @@ class DevdocsDesktop:
 			self.header_search.grab_focus()
 
 		if kname == 'Tab' and text:
+			self.webview.grab_focus()
+
+		if kname == 'Down':
 			self.webview.grab_focus()
 
 	def on_header_search_entry_key_release_event(self, widget, event):
