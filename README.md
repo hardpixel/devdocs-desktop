@@ -2,7 +2,7 @@
 
 DevDocs desktop application created with GTK3 and Python.
 
-![DevDocs Desktop](https://github.com/hardpixel/devdocs-desktop/blob/master/screenshot.png)
+![DevDocs Desktop](devdocs-desktop/screenshot.png)
 
 ## Command Line Usage
 
