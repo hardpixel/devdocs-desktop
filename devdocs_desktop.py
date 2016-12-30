@@ -28,7 +28,6 @@ class DevdocsDesktop:
 
 		self.webview = WebKit.WebView()
 		self.webview.load_uri(self.url_with_search())
-		self.set_webview_settings()
 
 		self.webview.connect('load-committed', self.on_webview_load_commited)
 		self.webview.connect('title-changed', self.on_webview_title_changed)
@@ -48,6 +47,7 @@ class DevdocsDesktop:
 		self.window.show_all()
 
 		self.create_settings_path()
+		self.set_webview_settings()
 		self.enable_persistent_cookies()
 
 	def run(self):
@@ -77,10 +77,11 @@ class DevdocsDesktop:
 		userstyle = 'file://' + self.file_path('styles/user.css')
 		settings  = self.webview.get_settings()
 
-		settings.set_property('enable-plugins', False)
-		settings.set_property('enable-java-applet', False)
-		settings.set_property('enable-default-context-menu', False)
+		settings.set_property('enable-webaudio', True)
+		settings.set_property('enable-page-cache', True)
+		settings.set_property('enable-media-stream', True)
 		settings.set_property('user-stylesheet-uri', userstyle)
+		settings.set_property('javascript-can-access-clipboard', True)
 
 	def enable_persistent_cookies(self):
 		cookiefile = self.settings_path('cookies.txt')
