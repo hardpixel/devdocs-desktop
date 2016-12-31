@@ -29,6 +29,7 @@ class DevdocsDesktop:
 		self.webview = WebKit.WebView()
 		self.webview.load_uri(self.url_with_search())
 
+		self.webview.connect('console-message', self.on_webview_console_message)
 		self.webview.connect('load-committed', self.on_webview_load_commited)
 		self.webview.connect('load-finished', self.on_webview_load_finished)
 		self.webview.connect('title-changed', self.on_webview_title_changed)
@@ -40,6 +41,8 @@ class DevdocsDesktop:
 		self.header_back = self.main.get_object('header_button_back')
 		self.header_forward = self.main.get_object('header_button_forward')
 		self.header_title = self.main.get_object('header_label_title')
+		self.header_save = self.main.get_object('header_button_save')
+		self.menu_layout = self.main.get_object('menu_main_toggle_layout')
 
 		self.header_search = self.main.get_object('header_search_entry')
 		self.header_search.get_style_context().remove_class('search')
@@ -98,6 +101,13 @@ class DevdocsDesktop:
 		forward = self.webview.can_go_forward()
 		self.header_forward.set_sensitive(forward)
 
+	def toggle_save_button(self, visible):
+		self.header_save.set_visible(visible)
+		self.header_search.set_visible(not visible)
+
+	def toggle_menu_layout_button(self, sensitive):
+		self.menu_layout.set_sensitive(sensitive)
+
 	def on_window_main_destroy(self, _event):
 		self.quit()
 
@@ -110,6 +120,8 @@ class DevdocsDesktop:
 			if visible:
 				self.header_search.set_text('')
 				self.header_search.grab_focus()
+			else:
+				self.toggle_save_button(False)
 
 		if kname == 'Tab' and text and visible:
 			self.webview.grab_focus()
@@ -146,6 +158,40 @@ class DevdocsDesktop:
 
 		self.header_search.set_text('')
 		self.js_click_element('a[href="/' + link + '"]')
+
+	def on_menu_main_select_docs_clicked(self, widget):
+		self.header_search.set_text('')
+		self.webview.grab_focus()
+		self.js_log_click_element('._content')
+		self.js_click_element('._sidebar-footer-edit')
+		self.toggle_save_button(True)
+
+	def on_menu_main_toggle_layout_clicked(self, widget):
+		self.js_click_element('._sidebar-footer-layout')
+
+	def on_menu_main_toggle_light_clicked(self, widget):
+		self.js_click_element('._sidebar-footer-light')
+
+	def on_header_button_save_clicked(self, widget):
+		self.js_click_element('._sidebar-footer-save')
+		self.toggle_save_button(False)
+
+	def on_finder_button_close_clicked(self, _widget):
+		self.revealer.set_reveal_child(False)
+
+	def on_webview_console_message(self, _widget, message, _line, _source_id):
+		if 'click_element:' in message:
+			element = message.split(':')[-1]
+			savebtn = self.header_save.get_visible()
+
+			if element == '._content' and savebtn:
+				self.toggle_save_button(False)
+
+		if 'element_attr:._sidebar-footer-layout' in message:
+			sensitive = message.split(':')[-1]
+			sensitive = False if sensitive == 'null' else True
+
+			self.toggle_menu_layout_button(sensitive)
 
 	def on_webview_load_commited(self, _widget, _frame):
 		self.update_history_buttons()
