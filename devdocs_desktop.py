@@ -168,6 +168,25 @@ class DevdocsDesktop:
 
 		self.webview.execute_script(script)
 
+	def js_log_click_element(self, selector):
+		text = 'click_element:' + selector
+		script = """
+		var sl = $('""" + selector + """');
+		function clicked() { console.log('""" + text + """'); };
+		if (sl) { sl.onclick = clicked; }
+		"""
+
+		self.webview.execute_script(script)
+
+	def js_log_element_attribute(self, selector, attr):
+		text = 'element_attr:' + selector
+		script = """
+		var sl = $('""" + selector + """');
+		if (sl) { console.log('""" + text + """:' + sl.""" + attr + """); }
+		"""
+
+		self.webview.execute_script(script)
+
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
