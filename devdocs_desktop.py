@@ -31,6 +31,7 @@ class DevdocsDesktop:
 
 		self.webview.connect('load-committed', self.on_webview_load_commited)
 		self.webview.connect('title-changed', self.on_webview_title_changed)
+		self.webview.connect('context-menu', self.on_webview_context_menu)
 
 		self.scrolled = self.main.get_object('scrolled_main')
 		self.scrolled.add(self.webview)
@@ -148,6 +149,15 @@ class DevdocsDesktop:
 
 	def on_webview_title_changed(self, _widget, _frame, title):
 		self.header_title.set_label(title)
+
+	def on_webview_context_menu(self, _widget, menu, _coords, _keyboard):
+		for item in menu.get_children():
+			label = item.get_label()
+			new_open = '_Window' in label
+			download = '_Download' in label
+
+			if new_open or download:
+				item.destroy()
 
 	def js_form_input(self, text):
 		script = """
