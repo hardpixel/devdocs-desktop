@@ -13,9 +13,43 @@
 
 ._sidebar > ._list {
   padding-bottom: 0 !important;
+  position: relative !important;
+}
+
+._sidebar > ._list::after {
+  content: "";
+  display: block;
+  width: 1px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  z-index: 999;
+  background: rgba(0, 0, 0, .15);
+}
+
+._sidebar > ._list > * {
+  z-index: 0;
+}
+
+._sidebar ._list {
+  box-shadow: none !important;
+}
+._sidebar > ._list-picker {
+  padding-bottom: 1rem !important;
+}
+
+._sidebar > ._list > ._list-link {
+  text-align: left !important;
+  margin-left: .75em !important;
 }
 
 ._sidebar-footer {
   position: fixed !important;
-  bottom: -1000px !important;
+  bottom: -100rem !important;
+}
+
+._path {
+  border-top: 1px solid rgba(0, 0, 0, .15) !important;
+  box-shadow: none !important;
 }
