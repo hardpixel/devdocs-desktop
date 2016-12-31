@@ -10,3 +10,12 @@
   top: 0 !important;
   margin-top: 0 !important;
 }
+
+._sidebar > ._list {
+  padding-bottom: 0 !important;
+}
+
+._sidebar-footer {
+  position: fixed !important;
+  bottom: -1000px !important;
+}
