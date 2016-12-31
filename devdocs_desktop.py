@@ -30,6 +30,7 @@ class DevdocsDesktop:
 		self.webview.load_uri(self.url_with_search())
 
 		self.webview.connect('load-committed', self.on_webview_load_commited)
+		self.webview.connect('load-finished', self.on_webview_load_finished)
 		self.webview.connect('title-changed', self.on_webview_title_changed)
 		self.webview.connect('context-menu', self.on_webview_context_menu)
 
@@ -146,6 +147,10 @@ class DevdocsDesktop:
 
 	def on_webview_load_commited(self, _widget, _frame):
 		self.update_history_buttons()
+
+	def on_webview_load_finished(self, _widget, _frame):
+		self.update_history_buttons()
+		self.js_log_element_attribute('._sidebar-footer-layout', 'offsetParent')
 
 	def on_webview_title_changed(self, _widget, _frame, title):
 		self.header_title.set_label(title)
