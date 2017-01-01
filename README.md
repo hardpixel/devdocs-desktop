@@ -9,6 +9,10 @@ DevDocs desktop application created with GTK3 and Python.
 To launch the application from the terminal use `devdocs-desktop [STRING]`.
 If a string is provided, the application will open the first available result page.
 
+## To Do
+
+Add support for offline documentation.
+
 ## Installation
 
 Arch Linux: [AUR Package](https://aur.archlinux.org/packages/devdocs-desktop)
