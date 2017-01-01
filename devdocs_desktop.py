@@ -249,44 +249,43 @@ class DevdocsDesktop:
 		var fi = $('._search-input');
 		var fe = $('._search');
 		var ev = new CustomEvent('input');
-		if (fi) { fi.value = '""" + text + """' };
+		if (fi) { fi.value = '%s' };
 		if (fe) { fe.dispatchEvent(ev); }
 		"""
+		script = script % (text)
 
 		self.webview.execute_script(script)
 
 	def js_click_element(self, selector):
-		script = """
-		var sl = $('""" + selector + """');
-		if (sl) { sl.click(); }
-		"""
+		script = "var sl = $('%s'); if (sl) { sl.click(); }"
+		script = script % (selector)
 
 		self.webview.execute_script(script)
 
 	def js_log_click_element(self, selector, text):
-		text = 'click:' + text
 		script = """
-		var sl = $('""" + selector + """');
-		function clicked() { console.log('""" + text + """'); };
+		var sl = $('%s');
+		function clicked() { console.log('click:%s'); };
 		if (sl) { sl.onclick = clicked; }
 		"""
+		script = script % (selector, text)
 
 		self.webview.execute_script(script)
 
 	def js_log_element_attribute(self, selector, attr, text):
-		text = "'" + text + ":' + sl." + attr
 		script = """
-		var sl = $('""" + selector + """');
-		if (sl) { console.log(""" + text + """); }
+		var sl = $('%s');
+		if (sl) { console.log('%s:' + sl.%s); }
 		"""
+		script = script % (selector, text, attr)
 
 		self.webview.execute_script(script)
 
 	def js_log_download_text(self):
-		text = "'download:' + sl.text"
 		script = """
 		var sl = $('._sidebar-footer-save');
-		if (sl) { setInterval(function() { console.log(""" + text + """); }, 500); }
+		function logText() { console.log('download:' + sl.text) };
+		if (sl) { setInterval( logText(), 500); }
 		"""
 
 		self.webview.execute_script(script)
