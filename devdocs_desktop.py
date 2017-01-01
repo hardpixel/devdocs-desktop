@@ -8,14 +8,18 @@ import webbrowser
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
+gi.require_version('GLib', '2.0')
 gi.require_version('WebKit', '3.0')
 
-from gi.repository import Gtk, Gdk, WebKit, Soup
+from gi.repository import Gtk, Gdk, GLib, WebKit, Soup
 
 
 class DevdocsDesktop:
 
 	def __init__(self):
+		GLib.set_prgname('devdocs-desktop')
+		GLib.set_application_name('DevDocs')
+
 		self.args = argparse.ArgumentParser(prog='devdocs-desktop')
 		self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 

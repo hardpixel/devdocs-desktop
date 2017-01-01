@@ -188,6 +188,8 @@
           <object class="GtkScrolledWindow" id="scrolled_main">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="min_content_width">800</property>
+            <property name="min_content_height">480</property>
             <child>
               <placeholder/>
             </child>
