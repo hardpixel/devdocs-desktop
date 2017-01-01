@@ -199,17 +199,20 @@ class DevdocsDesktop:
 	def on_webview_nav_requested(self, _widget, _frame, request):
 		uri = request.get_uri()
 
-		if self.do_link and self.app_url not in uri:
-			webbrowser.open(uri)
+		if self.do_link:
+			if self.app_url in uri:
+				link = uri.split(self.app_url)[-1]
+				self.js_click_element('a[href="' + link + '"]')
+			else:
+				webbrowser.open(uri)
 
-		if self.app_url in uri:
-			link = uri.split(self.app_url)[-1]
-			self.js_click_element('a[href="' + link + '"]')
+			return True
 
 		self.do_link = False
-		return True
+		return False
 
 	def on_webview_load_commited(self, _widget, _frame):
+		self.do_link = False
 		self.toggle_save_button(False)
 		self.update_history_buttons()
 
