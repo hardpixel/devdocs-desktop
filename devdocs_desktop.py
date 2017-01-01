@@ -169,7 +169,7 @@ class DevdocsDesktop:
 	def on_menu_main_select_docs_clicked(self, widget):
 		self.header_search.set_text('')
 		self.webview.grab_focus()
-		self.js_log_click_element('._content')
+		self.js_log_click_element('._content', 'content')
 		self.js_click_element('._sidebar-footer-edit')
 		self.toggle_save_button(True)
 
@@ -181,24 +181,25 @@ class DevdocsDesktop:
 
 	def on_header_button_save_clicked(self, widget):
 		self.js_click_element('._sidebar-footer-save')
+		self.js_log_download_text()
 		self.toggle_save_button(False)
 
 	def on_finder_button_close_clicked(self, _widget):
 		self.revealer.set_reveal_child(False)
 
 	def on_webview_console_message(self, _widget, message, _line, _source_id):
-		if 'click_element:' in message:
-			element = message.split(':')[-1]
-			savebtn = self.header_save.get_visible()
+		if 'click:content' in message:
+			self.toggle_save_button(False)
 
-			if element == '._content' and savebtn:
-				self.toggle_save_button(False)
-
-		if 'element_attr:._sidebar-footer-layout' in message:
+		if 'layout:' in message:
 			sensitive = message.split(':')[-1]
 			sensitive = False if sensitive == 'null' else True
 
 			self.toggle_menu_layout_button(sensitive)
+
+		if 'download:' in message:
+			text = message.split(':')[-1]
+			self.header_title.set_label(text)
 
 	def on_webview_nav_requested(self, _widget, _frame, request):
 		uri = request.get_uri()
@@ -222,7 +223,7 @@ class DevdocsDesktop:
 
 	def on_webview_load_finished(self, _widget, _frame):
 		self.update_history_buttons()
-		self.js_log_element_attribute('._sidebar-footer-layout', 'offsetParent')
+		self.js_log_element_attribute('._sidebar-footer-layout', 'offsetParent', 'layout')
 
 	def on_webview_title_changed(self, _widget, _frame, title):
 		self.header_title.set_label(title)
@@ -262,8 +263,8 @@ class DevdocsDesktop:
 
 		self.webview.execute_script(script)
 
-	def js_log_click_element(self, selector):
-		text = 'click_element:' + selector
+	def js_log_click_element(self, selector, text):
+		text = 'click:' + text
 		script = """
 		var sl = $('""" + selector + """');
 		function clicked() { console.log('""" + text + """'); };
@@ -272,11 +273,20 @@ class DevdocsDesktop:
 
 		self.webview.execute_script(script)
 
-	def js_log_element_attribute(self, selector, attr):
-		text = 'element_attr:' + selector
+	def js_log_element_attribute(self, selector, attr, text):
+		text = "'" + text + ":' + sl." + attr
 		script = """
 		var sl = $('""" + selector + """');
-		if (sl) { console.log('""" + text + """:' + sl.""" + attr + """); }
+		if (sl) { console.log(""" + text + """); }
+		"""
+
+		self.webview.execute_script(script)
+
+	def js_log_download_text(self):
+		text = "'download:' + sl.text"
+		script = """
+		var sl = $('._sidebar-footer-save');
+		if (sl) { setInterval(function() { console.log(""" + text + """); }, 500); }
 		"""
 
 		self.webview.execute_script(script)
