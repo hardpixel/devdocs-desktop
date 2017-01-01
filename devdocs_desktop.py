@@ -194,6 +194,7 @@ class DevdocsDesktop:
 			self.toggle_menu_layout_button(sensitive)
 
 	def on_webview_load_commited(self, _widget, _frame):
+		self.toggle_save_button(False)
 		self.update_history_buttons()
 
 	def on_webview_load_finished(self, _widget, _frame):
