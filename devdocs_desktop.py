@@ -4,6 +4,7 @@ import os
 import gi
 import signal
 import argparse
+import webbrowser
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
@@ -19,6 +20,7 @@ class DevdocsDesktop:
 		self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 
 		self.app_url = 'https://devdocs.io'
+		self.do_link = False
 		self.search  = self.args.parse_args().s
 		self.session = WebKit.get_default_session()
 
@@ -30,6 +32,7 @@ class DevdocsDesktop:
 		self.webview.load_uri(self.url_with_search())
 
 		self.webview.connect('console-message', self.on_webview_console_message)
+		self.webview.connect('navigation-requested', self.on_webview_nav_requested)
 		self.webview.connect('load-committed', self.on_webview_load_commited)
 		self.webview.connect('load-finished', self.on_webview_load_finished)
 		self.webview.connect('title-changed', self.on_webview_title_changed)
@@ -193,6 +196,16 @@ class DevdocsDesktop:
 
 			self.toggle_menu_layout_button(sensitive)
 
+	def on_webview_nav_requested(self, _widget, _frame, request):
+		uri = request.get_uri()
+
+		if self.do_link and self.app_url not in uri:
+			webbrowser.open(uri)
+			return True
+
+		self.do_link = False
+		return False
+
 	def on_webview_load_commited(self, _widget, _frame):
 		self.toggle_save_button(False)
 		self.update_history_buttons()
@@ -204,14 +217,21 @@ class DevdocsDesktop:
 	def on_webview_title_changed(self, _widget, _frame, title):
 		self.header_title.set_label(title)
 
+	def on_webview_open_link(self, _widget):
+		self.do_link = True
+
 	def on_webview_context_menu(self, _widget, menu, _coords, _keyboard):
 		for item in menu.get_children():
 			label = item.get_label()
+			lnk_open = '_Open' in label
 			new_open = '_Window' in label
 			download = '_Download' in label
 
 			if new_open or download:
 				item.destroy()
+
+			if lnk_open:
+				item.connect('select', self.on_webview_open_link)
 
 	def js_form_input(self, text):
 		script = """
