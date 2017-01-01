@@ -201,10 +201,13 @@ class DevdocsDesktop:
 
 		if self.do_link and self.app_url not in uri:
 			webbrowser.open(uri)
-			return True
+
+		if self.app_url in uri:
+			link = uri.split(self.app_url)[-1]
+			self.js_click_element('a[href="' + link + '"]')
 
 		self.do_link = False
-		return False
+		return True
 
 	def on_webview_load_commited(self, _widget, _frame):
 		self.toggle_save_button(False)
