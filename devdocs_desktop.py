@@ -49,7 +49,6 @@ class DevdocsDesktop:
     self.header_forward = self.main.get_object('header_button_forward')
     self.header_title = self.main.get_object('header_label_title')
     self.header_save = self.main.get_object('header_button_save')
-    self.menu_layout = self.main.get_object('menu_main_toggle_layout')
 
     self.header_search = self.main.get_object('header_search_entry')
     self.header_search.get_style_context().remove_class('search')
@@ -121,9 +120,6 @@ class DevdocsDesktop:
     self.header_save.set_visible(visible)
     self.header_search.set_visible(not visible)
 
-  def toggle_menu_layout_button(self, sensitive):
-    self.menu_layout.set_sensitive(sensitive)
-
   def on_window_main_destroy(self, _event):
     self.quit()
 
@@ -171,17 +167,6 @@ class DevdocsDesktop:
 
     self.header_search.set_text('')
     self.js_click_element('a[href="/' + link + '"]')
-
-  def on_menu_main_select_docs_clicked(self, _widget):
-    self.header_search.set_text('')
-    self.webview.grab_focus()
-    self.js_click_element('a[href="/settings"]')
-
-  def on_menu_main_toggle_layout_clicked(self, _widget):
-    self.set_cookie('layout', '_max-width')
-
-  def on_menu_main_toggle_light_clicked(self, _widget):
-    self.set_cookie('dark', '1')
 
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
