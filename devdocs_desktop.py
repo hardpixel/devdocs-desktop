@@ -169,7 +169,6 @@ class DevdocsDesktop:
 	def on_menu_main_select_docs_clicked(self, widget):
 		self.header_search.set_text('')
 		self.webview.grab_focus()
-		self.js_log_click_element('._content', 'content')
 		self.js_click_element('._sidebar-footer-edit')
 		self.toggle_save_button(True)
 
@@ -181,25 +180,11 @@ class DevdocsDesktop:
 
 	def on_header_button_save_clicked(self, widget):
 		self.js_click_element('._sidebar-footer-save')
-		self.js_log_download_text()
 		self.toggle_save_button(False)
 
 	def on_finder_button_close_clicked(self, _widget):
 		self.revealer.set_reveal_child(False)
 
-	def on_webview_console_message(self, _widget, message, _line, _source_id):
-		if 'click:content' in message:
-			self.toggle_save_button(False)
-
-		if 'layout:' in message:
-			sensitive = message.split(':')[-1]
-			sensitive = False if sensitive == 'null' else True
-
-			self.toggle_menu_layout_button(sensitive)
-
-		if 'download:' in message:
-			text = message.split(':')[-1]
-			self.header_title.set_label(text)
 
 	def on_webview_nav_requested(self, _widget, _frame, request):
 		uri = request.get_uri()
@@ -223,7 +208,6 @@ class DevdocsDesktop:
 
 	def on_webview_load_finished(self, _widget, _frame):
 		self.update_history_buttons()
-		self.js_log_element_attribute('._sidebar-footer-layout', 'offsetParent', 'layout')
 
 	def on_webview_title_changed(self, _widget, _frame, title):
 		self.header_title.set_label(title)
@@ -259,34 +243,6 @@ class DevdocsDesktop:
 	def js_click_element(self, selector):
 		script = "var sl = $('%s'); if (sl) { sl.click(); }"
 		script = script % (selector)
-
-		self.webview.execute_script(script)
-
-	def js_log_click_element(self, selector, text):
-		script = """
-		var sl = $('%s');
-		function clicked() { console.log('click:%s'); };
-		if (sl) { sl.onclick = clicked; }
-		"""
-		script = script % (selector, text)
-
-		self.webview.execute_script(script)
-
-	def js_log_element_attribute(self, selector, attr, text):
-		script = """
-		var sl = $('%s');
-		if (sl) { console.log('%s:' + sl.%s); }
-		"""
-		script = script % (selector, text, attr)
-
-		self.webview.execute_script(script)
-
-	def js_log_download_text(self):
-		script = """
-		var sl = $('._sidebar-footer-save');
-		function logText() { console.log('download:' + sl.text) };
-		if (sl) { setInterval( logText(), 500); }
-		"""
 
 		self.webview.execute_script(script)
 
