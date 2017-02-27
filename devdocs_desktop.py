@@ -169,7 +169,7 @@ class DevdocsDesktop:
 	def on_menu_main_select_docs_clicked(self, _widget):
 		self.header_search.set_text('')
 		self.webview.grab_focus()
-		self.js_click_element('._sidebar-footer-edit')
+		self.js_click_element('a[href="/settings"]')
 
 	def on_menu_main_toggle_layout_clicked(self, widget):
 		self.js_click_element('._sidebar-footer-layout')
