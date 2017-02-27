@@ -16,242 +16,242 @@ from gi.repository import Gtk, Gdk, GLib, WebKit, Soup
 
 class DevdocsDesktop:
 
-	def __init__(self):
-		GLib.set_prgname('devdocs-desktop')
-		GLib.set_application_name('DevDocs')
+  def __init__(self):
+    GLib.set_prgname('devdocs-desktop')
+    GLib.set_application_name('DevDocs')
 
-		self.args = argparse.ArgumentParser(prog='devdocs-desktop')
-		self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
+    self.args = argparse.ArgumentParser(prog='devdocs-desktop')
+    self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 
-		self.app_url = 'https://devdocs.io'
-		self.do_link = False
-		self.cookies = None
-		self.search  = self.args.parse_args().s
-		self.session = WebKit.get_default_session()
+    self.app_url = 'https://devdocs.io'
+    self.do_link = False
+    self.cookies = None
+    self.search  = self.args.parse_args().s
+    self.session = WebKit.get_default_session()
 
-		self.main = Gtk.Builder()
-		self.main.add_from_file(self.file_path('ui/main.ui'))
-		self.main.connect_signals(self)
+    self.main = Gtk.Builder()
+    self.main.add_from_file(self.file_path('ui/main.ui'))
+    self.main.connect_signals(self)
 
-		self.webview = WebKit.WebView()
-		self.webview.load_uri(self.url_with_search())
+    self.webview = WebKit.WebView()
+    self.webview.load_uri(self.url_with_search())
 
-		self.webview.connect('navigation-requested', self.on_webview_nav_requested)
-		self.webview.connect('load-committed', self.on_webview_load_commited)
-		self.webview.connect('load-finished', self.on_webview_load_finished)
-		self.webview.connect('title-changed', self.on_webview_title_changed)
-		self.webview.connect('context-menu', self.on_webview_context_menu)
+    self.webview.connect('navigation-requested', self.on_webview_nav_requested)
+    self.webview.connect('load-committed', self.on_webview_load_commited)
+    self.webview.connect('load-finished', self.on_webview_load_finished)
+    self.webview.connect('title-changed', self.on_webview_title_changed)
+    self.webview.connect('context-menu', self.on_webview_context_menu)
 
-		self.scrolled = self.main.get_object('scrolled_main')
-		self.scrolled.add(self.webview)
+    self.scrolled = self.main.get_object('scrolled_main')
+    self.scrolled.add(self.webview)
 
-		self.header_back = self.main.get_object('header_button_back')
-		self.header_forward = self.main.get_object('header_button_forward')
-		self.header_title = self.main.get_object('header_label_title')
-		self.header_save = self.main.get_object('header_button_save')
-		self.menu_layout = self.main.get_object('menu_main_toggle_layout')
+    self.header_back = self.main.get_object('header_button_back')
+    self.header_forward = self.main.get_object('header_button_forward')
+    self.header_title = self.main.get_object('header_label_title')
+    self.header_save = self.main.get_object('header_button_save')
+    self.menu_layout = self.main.get_object('menu_main_toggle_layout')
 
-		self.header_search = self.main.get_object('header_search_entry')
-		self.header_search.get_style_context().remove_class('search')
-		self.header_search.set_text(self.search)
+    self.header_search = self.main.get_object('header_search_entry')
+    self.header_search.get_style_context().remove_class('search')
+    self.header_search.set_text(self.search)
 
-		self.window = self.main.get_object('window_main')
-		self.window.show_all()
+    self.window = self.main.get_object('window_main')
+    self.window.show_all()
 
-		self.create_settings_path()
-		self.set_webview_settings()
-		self.enable_persistent_cookies()
+    self.create_settings_path()
+    self.set_webview_settings()
+    self.enable_persistent_cookies()
 
-	def run(self):
-		Gtk.main()
+  def run(self):
+    Gtk.main()
 
-	def quit(self):
-		Gtk.main_quit()
+  def quit(self):
+    Gtk.main_quit()
 
-	def url_with_search(self):
-		url = self.app_url
+  def url_with_search(self):
+    url = self.app_url
 
-		if self.search != '':
-			url = url + '#q=' + self.search
+    if self.search != '':
+      url = url + '#q=' + self.search
 
-		return url
+    return url
 
-	def create_settings_path(self):
-		directory = self.settings_path()
+  def create_settings_path(self):
+    directory = self.settings_path()
 
-		if not os.path.exists(directory):
-			os.makedirs(directory)
+    if not os.path.exists(directory):
+      os.makedirs(directory)
 
-	def settings_path(self, filepath=''):
-		root = os.path.expanduser('~') + '/.devdocs-desktop'
-		return os.path.join(root, filepath)
+  def settings_path(self, filepath=''):
+    root = os.path.expanduser('~') + '/.devdocs-desktop'
+    return os.path.join(root, filepath)
 
-	def file_path(self, filepath):
-		root = os.path.dirname(os.path.realpath(__file__))
-		return os.path.join(root, filepath)
+  def file_path(self, filepath):
+    root = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(root, filepath)
 
-	def set_webview_settings(self):
-		userstyle = 'file://' + self.file_path('styles/user.css')
-		settings  = self.webview.get_settings()
+  def set_webview_settings(self):
+    userstyle = 'file://' + self.file_path('styles/user.css')
+    settings  = self.webview.get_settings()
 
-		settings.set_property('enable-webaudio', True)
-		settings.set_property('enable-media-stream', True)
-		settings.set_property('user-stylesheet-uri', userstyle)
-		settings.set_property('javascript-can-access-clipboard', True)
+    settings.set_property('enable-webaudio', True)
+    settings.set_property('enable-media-stream', True)
+    settings.set_property('user-stylesheet-uri', userstyle)
+    settings.set_property('javascript-can-access-clipboard', True)
 
-	def enable_persistent_cookies(self):
-		cookiefile = self.settings_path('cookies.txt')
-		self.cookies = Soup.CookieJarText.new(cookiefile, False)
-		self.cookies.set_accept_policy(Soup.CookieJarAcceptPolicy.ALWAYS)
-		self.session.add_feature(self.cookies)
+  def enable_persistent_cookies(self):
+    cookiefile = self.settings_path('cookies.txt')
+    self.cookies = Soup.CookieJarText.new(cookiefile, False)
+    self.cookies.set_accept_policy(Soup.CookieJarAcceptPolicy.ALWAYS)
+    self.session.add_feature(self.cookies)
 
-	def set_cookie(self, name, value):
-		expire = Soup.COOKIE_MAX_AGE_ONE_YEAR
-		cookie = Soup.Cookie.new(name, value, 'devdocs.io', '/', expire)
-		self.cookies.add_cookie(cookie)
-		self.cookies.save()
+  def set_cookie(self, name, value):
+    expire = Soup.COOKIE_MAX_AGE_ONE_YEAR
+    cookie = Soup.Cookie.new(name, value, 'devdocs.io', '/', expire)
+    self.cookies.add_cookie(cookie)
+    self.cookies.save()
 
-	def update_history_buttons(self):
-		back = self.webview.can_go_back()
-		self.header_back.set_sensitive(back)
+  def update_history_buttons(self):
+    back = self.webview.can_go_back()
+    self.header_back.set_sensitive(back)
 
-		forward = self.webview.can_go_forward()
-		self.header_forward.set_sensitive(forward)
+    forward = self.webview.can_go_forward()
+    self.header_forward.set_sensitive(forward)
 
-	def toggle_save_button(self, visible):
-		self.header_save.set_visible(visible)
-		self.header_search.set_visible(not visible)
+  def toggle_save_button(self, visible):
+    self.header_save.set_visible(visible)
+    self.header_search.set_visible(not visible)
 
-	def toggle_menu_layout_button(self, sensitive):
-		self.menu_layout.set_sensitive(sensitive)
+  def toggle_menu_layout_button(self, sensitive):
+    self.menu_layout.set_sensitive(sensitive)
 
-	def on_window_main_destroy(self, _event):
-		self.quit()
+  def on_window_main_destroy(self, _event):
+    self.quit()
 
-	def on_window_main_key_release_event(self, _widget, event):
-		kname = Gdk.keyval_name(event.keyval)
-		text = self.header_search.get_text()
-		visible = self.header_search.get_visible()
+  def on_window_main_key_release_event(self, _widget, event):
+    kname = Gdk.keyval_name(event.keyval)
+    text = self.header_search.get_text()
+    visible = self.header_search.get_visible()
 
-		if kname == 'Escape' and visible:
-			self.header_search.set_text('')
-			self.header_search.grab_focus()
+    if kname == 'Escape' and visible:
+      self.header_search.set_text('')
+      self.header_search.grab_focus()
 
-		if kname == 'Tab' and text and visible:
-			self.webview.grab_focus()
+    if kname == 'Tab' and text and visible:
+      self.webview.grab_focus()
 
-		if kname == 'Down' and visible:
-			self.webview.grab_focus()
+    if kname == 'Down' and visible:
+      self.webview.grab_focus()
 
-	def on_header_search_entry_key_release_event(self, _widget, event):
-		kname = Gdk.keyval_name(event.keyval)
+  def on_header_search_entry_key_release_event(self, _widget, event):
+    kname = Gdk.keyval_name(event.keyval)
 
-		if kname == 'Return':
-			self.webview.grab_focus()
-			self.js_click_element('._list-result.focus')
+    if kname == 'Return':
+      self.webview.grab_focus()
+      self.js_click_element('._list-result.focus')
 
-	def on_header_button_back_clicked(self, _widget):
-		self.webview.go_back()
-		self.header_search.set_text('')
+  def on_header_button_back_clicked(self, _widget):
+    self.webview.go_back()
+    self.header_search.set_text('')
 
-	def on_header_button_forward_clicked(self, _widget):
-		self.webview.go_forward()
-		self.header_search.set_text('')
+  def on_header_button_forward_clicked(self, _widget):
+    self.webview.go_forward()
+    self.header_search.set_text('')
 
-	def on_header_button_reload_clicked(self, _widget):
-		self.webview.reload()
-		self.header_search.set_text('')
+  def on_header_button_reload_clicked(self, _widget):
+    self.webview.reload()
+    self.header_search.set_text('')
 
-	def on_header_search_entry_search_changed(self, widget):
-		text = widget.get_text()
-		self.js_form_input(text)
+  def on_header_search_entry_search_changed(self, widget):
+    text = widget.get_text()
+    self.js_form_input(text)
 
-	def on_menu_main_link_clicked(self, widget):
-		link = Gtk.Buildable.get_name(widget).split('_')[-1]
-		link = '' if link == 'home' else link
+  def on_menu_main_link_clicked(self, widget):
+    link = Gtk.Buildable.get_name(widget).split('_')[-1]
+    link = '' if link == 'home' else link
 
-		self.header_search.set_text('')
-		self.js_click_element('a[href="/' + link + '"]')
+    self.header_search.set_text('')
+    self.js_click_element('a[href="/' + link + '"]')
 
-	def on_menu_main_select_docs_clicked(self, _widget):
-		self.header_search.set_text('')
-		self.webview.grab_focus()
-		self.js_click_element('a[href="/settings"]')
+  def on_menu_main_select_docs_clicked(self, _widget):
+    self.header_search.set_text('')
+    self.webview.grab_focus()
+    self.js_click_element('a[href="/settings"]')
 
-	def on_menu_main_toggle_layout_clicked(self, _widget):
-		self.set_cookie('layout', '_max-width')
+  def on_menu_main_toggle_layout_clicked(self, _widget):
+    self.set_cookie('layout', '_max-width')
 
-	def on_menu_main_toggle_light_clicked(self, _widget):
-		self.set_cookie('dark', '1')
+  def on_menu_main_toggle_light_clicked(self, _widget):
+    self.set_cookie('dark', '1')
 
-	def on_header_button_save_clicked(self, _widget):
-		self.toggle_save_button(False)
-		self.js_click_element('._sidebar-footer ._settings-btn')
-		self.header_title.set_label('Downloading...')
+  def on_header_button_save_clicked(self, _widget):
+    self.toggle_save_button(False)
+    self.js_click_element('._sidebar-footer ._settings-btn')
+    self.header_title.set_label('Downloading...')
 
-	def on_webview_nav_requested(self, _widget, _frame, request):
-		uri = request.get_uri()
+  def on_webview_nav_requested(self, _widget, _frame, request):
+    uri = request.get_uri()
 
-		if self.do_link:
-			if self.app_url in uri:
-				link = uri.split(self.app_url)[-1]
-				self.js_click_element('a[href="' + link + '"]')
-			else:
-				webbrowser.open(uri)
+    if self.do_link:
+      if self.app_url in uri:
+        link = uri.split(self.app_url)[-1]
+        self.js_click_element('a[href="' + link + '"]')
+      else:
+        webbrowser.open(uri)
 
-			return True
+      return True
 
-		self.do_link = False
-		return False
+    self.do_link = False
+    return False
 
-	def on_webview_load_commited(self, _widget, frame):
-		self.do_link = False
-		self.update_history_buttons()
-		self.toggle_save_button(frame.get_uri().endswith('settings'))
+  def on_webview_load_commited(self, _widget, frame):
+    self.do_link = False
+    self.update_history_buttons()
+    self.toggle_save_button(frame.get_uri().endswith('settings'))
 
-	def on_webview_load_finished(self, _widget, _frame):
-		self.update_history_buttons()
+  def on_webview_load_finished(self, _widget, _frame):
+    self.update_history_buttons()
 
-	def on_webview_title_changed(self, _widget, _frame, title):
-		self.header_title.set_label(title)
+  def on_webview_title_changed(self, _widget, _frame, title):
+    self.header_title.set_label(title)
 
-	def on_webview_open_link(self, _widget):
-		self.do_link = True
+  def on_webview_open_link(self, _widget):
+    self.do_link = True
 
-	def on_webview_context_menu(self, _widget, menu, _coords, _keyboard):
-		for item in menu.get_children():
-			label = item.get_label()
-			lnk_open = '_Open' in label
-			new_open = '_Window' in label
-			download = '_Download' in label
+  def on_webview_context_menu(self, _widget, menu, _coords, _keyboard):
+    for item in menu.get_children():
+      label = item.get_label()
+      lnk_open = '_Open' in label
+      new_open = '_Window' in label
+      download = '_Download' in label
 
-			if new_open or download:
-				item.destroy()
+      if new_open or download:
+        item.destroy()
 
-			if lnk_open:
-				item.connect('select', self.on_webview_open_link)
+      if lnk_open:
+        item.connect('select', self.on_webview_open_link)
 
-	def js_form_input(self, text):
-		script = """
-		var fi = $('._search-input');
-		var fe = $('._search');
-		var ev = new CustomEvent('input');
-		if (fi) { fi.value = '%s' };
-		if (fe) { fe.dispatchEvent(ev); }
-		"""
-		script = script % (text)
+  def js_form_input(self, text):
+    script = """
+    var fi = $('._search-input');
+    var fe = $('._search');
+    var ev = new CustomEvent('input');
+    if (fi) { fi.value = '%s' };
+    if (fe) { fe.dispatchEvent(ev); }
+    """
+    script = script % (text)
 
-		self.webview.execute_script(script)
+    self.webview.execute_script(script)
 
-	def js_click_element(self, selector):
-		script = "var sl = $('%s'); if (sl) { sl.click(); }"
-		script = script % (selector)
+  def js_click_element(self, selector):
+    script = "var sl = $('%s'); if (sl) { sl.click(); }"
+    script = script % (selector)
 
-		self.webview.execute_script(script)
+    self.webview.execute_script(script)
 
 
 if __name__ == '__main__':
-	signal.signal(signal.SIGINT, signal.SIG_DFL)
+  signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-	devdocs = DevdocsDesktop()
-	devdocs.run()
+  devdocs = DevdocsDesktop()
+  devdocs.run()
