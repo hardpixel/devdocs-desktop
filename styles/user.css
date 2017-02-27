@@ -36,7 +36,7 @@
   box-shadow: none !important;
 }
 ._sidebar > ._list-picker {
-  padding-bottom: 1rem !important;
+  margin-bottom: -3rem !important;
 }
 
 ._sidebar > ._list > ._list-link {
@@ -45,8 +45,7 @@
 }
 
 ._sidebar-footer {
-  position: fixed !important;
-  bottom: -100rem !important;
+  display: none !important;
 }
 
 ._path {
