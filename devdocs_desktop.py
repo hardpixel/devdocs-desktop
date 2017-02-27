@@ -109,7 +109,6 @@ class DevdocsDesktop:
     expire = Soup.COOKIE_MAX_AGE_ONE_YEAR
     cookie = Soup.Cookie.new(name, value, 'devdocs.io', '/', expire)
     self.cookies.add_cookie(cookie)
-    self.cookies.save()
 
   def update_history_buttons(self):
     back = self.webview.can_go_back()
@@ -209,8 +208,9 @@ class DevdocsDesktop:
     self.update_history_buttons()
     self.toggle_save_button(frame.get_uri().endswith('settings'))
 
-  def on_webview_load_finished(self, _widget, _frame):
+  def on_webview_load_finished(self, _widget, frame):
     self.update_history_buttons()
+    self.toggle_save_button(frame.get_uri().endswith('settings'))
 
   def on_webview_title_changed(self, _widget, _frame, title):
     self.header_title.set_label(title)
