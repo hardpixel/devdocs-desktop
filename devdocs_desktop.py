@@ -35,7 +35,6 @@ class DevdocsDesktop:
 		self.webview = WebKit.WebView()
 		self.webview.load_uri(self.url_with_search())
 
-		self.webview.connect('console-message', self.on_webview_console_message)
 		self.webview.connect('navigation-requested', self.on_webview_nav_requested)
 		self.webview.connect('load-committed', self.on_webview_load_commited)
 		self.webview.connect('load-finished', self.on_webview_load_finished)
@@ -69,7 +68,12 @@ class DevdocsDesktop:
 		Gtk.main_quit()
 
 	def url_with_search(self):
-		return self.app_url + '#q=' + self.search
+		url = self.app_url
+
+		if self.search != '':
+			url = url + '#q=' + self.search
+
+		return url
 
 	def create_settings_path(self):
 		directory = self.settings_path()
@@ -90,7 +94,6 @@ class DevdocsDesktop:
 		settings  = self.webview.get_settings()
 
 		settings.set_property('enable-webaudio', True)
-		settings.set_property('enable-page-cache', True)
 		settings.set_property('enable-media-stream', True)
 		settings.set_property('user-stylesheet-uri', userstyle)
 		settings.set_property('javascript-can-access-clipboard', True)
@@ -118,7 +121,7 @@ class DevdocsDesktop:
 	def on_window_main_destroy(self, _event):
 		self.quit()
 
-	def on_window_main_key_release_event(self, widget, event):
+	def on_window_main_key_release_event(self, _widget, event):
 		kname = Gdk.keyval_name(event.keyval)
 		text = self.header_search.get_text()
 		visible = self.header_search.get_visible()
@@ -136,7 +139,7 @@ class DevdocsDesktop:
 		if kname == 'Down' and visible:
 			self.webview.grab_focus()
 
-	def on_header_search_entry_key_release_event(self, widget, event):
+	def on_header_search_entry_key_release_event(self, _widget, event):
 		kname = Gdk.keyval_name(event.keyval)
 
 		if kname == 'Return':
@@ -166,7 +169,7 @@ class DevdocsDesktop:
 		self.header_search.set_text('')
 		self.js_click_element('a[href="/' + link + '"]')
 
-	def on_menu_main_select_docs_clicked(self, widget):
+	def on_menu_main_select_docs_clicked(self, _widget):
 		self.header_search.set_text('')
 		self.webview.grab_focus()
 		self.js_click_element('._sidebar-footer-edit')
@@ -175,16 +178,12 @@ class DevdocsDesktop:
 	def on_menu_main_toggle_layout_clicked(self, widget):
 		self.js_click_element('._sidebar-footer-layout')
 
-	def on_menu_main_toggle_light_clicked(self, widget):
 		self.js_click_element('._sidebar-footer-light')
+	def on_menu_main_toggle_light_clicked(self, _widget):
 
-	def on_header_button_save_clicked(self, widget):
 		self.js_click_element('._sidebar-footer-save')
+	def on_header_button_save_clicked(self, _widget):
 		self.toggle_save_button(False)
-
-	def on_finder_button_close_clicked(self, _widget):
-		self.revealer.set_reveal_child(False)
-
 
 	def on_webview_nav_requested(self, _widget, _frame, request):
 		uri = request.get_uri()
@@ -201,7 +200,7 @@ class DevdocsDesktop:
 		self.do_link = False
 		return False
 
-	def on_webview_load_commited(self, _widget, _frame):
+	def on_webview_load_commited(self, _widget, frame):
 		self.do_link = False
 		self.toggle_save_button(False)
 		self.update_history_buttons()
