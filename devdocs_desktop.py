@@ -25,7 +25,6 @@ class DevdocsDesktop:
 
     self.app_url = 'https://devdocs.io'
     self.do_link = False
-    self.cookies = None
     self.search  = self.args.parse_args().s
     self.session = WebKit.get_default_session()
 
@@ -100,14 +99,9 @@ class DevdocsDesktop:
 
   def enable_persistent_cookies(self):
     cookiefile = self.settings_path('cookies.txt')
-    self.cookies = Soup.CookieJarText.new(cookiefile, False)
-    self.cookies.set_accept_policy(Soup.CookieJarAcceptPolicy.ALWAYS)
-    self.session.add_feature(self.cookies)
-
-  def set_cookie(self, name, value):
-    expire = Soup.COOKIE_MAX_AGE_ONE_YEAR
-    cookie = Soup.Cookie.new(name, value, 'devdocs.io', '/', expire)
-    self.cookies.add_cookie(cookie)
+    cookiejar = Soup.CookieJarText.new(cookiefile, False)
+    cookiejar.set_accept_policy(Soup.CookieJarAcceptPolicy.ALWAYS)
+    self.session.add_feature(cookiejar)
 
   def update_history_buttons(self):
     back = self.webview.can_go_back()
