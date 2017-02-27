@@ -178,13 +178,12 @@ class DevdocsDesktop:
 		self.webview.grab_focus()
 		self.js_click_element('a[href="/settings"]')
 
-	def on_menu_main_toggle_layout_clicked(self, widget):
-		self.js_click_element('._sidebar-footer-layout')
+	def on_menu_main_toggle_layout_clicked(self, _widget):
+		self.set_cookie('layout', '_max-width')
 
-		self.js_click_element('._sidebar-footer-light')
 	def on_menu_main_toggle_light_clicked(self, _widget):
+		self.set_cookie('dark', '1')
 
-		self.js_click_element('._sidebar-footer-save')
 	def on_header_button_save_clicked(self, _widget):
 		self.toggle_save_button(False)
 		self.js_click_element('._sidebar-footer ._settings-btn')
