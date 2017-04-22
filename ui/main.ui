@@ -43,7 +43,6 @@
         <child>
           <object class="GtkModelButton" id="menu_main_offline">
             <property name="visible">True</property>
-            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="text" translatable="yes">Offline Data</property>
@@ -289,6 +288,7 @@
             <child>
               <object class="GtkButton" id="header_button_back">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <signal name="clicked" handler="on_header_button_back_clicked" swapped="no"/>
@@ -309,6 +309,7 @@
             <child>
               <object class="GtkButton" id="header_button_forward">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <signal name="clicked" handler="on_header_button_forward_clicked" swapped="no"/>

@@ -9,15 +9,9 @@ DevDocs desktop application created with GTK3 and Python.
 To launch the application from the terminal use `devdocs-desktop [STRING]`.
 If a string is provided, the application will open the first available result page.
 
-## Requirements (for development)
+## Requirements
 
-* python (>= 3)
-* python-gobject
-* webkitgtk (engine for GTK+ 3)
-
-## To Do
-
-Add support for offline documentation.
+    python, python-gobject, webkitgtk
 
 ## Installation
 
