@@ -78,7 +78,7 @@ class DevdocsDesktop:
       os.makedirs(self.settings_path())
 
   def settings_path(self, filepath=''):
-    root = "%s/.devdocs-desktop" % os.path.expanduser('~')
+    root = "%s/devdocs-desktop" % os.path.expanduser('~/.config')
     return os.path.join(root, filepath)
 
   def file_path(self, filepath):
