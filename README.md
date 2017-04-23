@@ -11,7 +11,7 @@ If a string is provided, the application will open the first available result pa
 
 ## Requirements
 
-    python, python-gobject, webkitgtk
+    python, python-gobject, webkit2gtk
 
 ## Installation
 
