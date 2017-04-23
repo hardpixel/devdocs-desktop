@@ -56,12 +56,24 @@ class DevdocsDesktop:
     self.header_search.get_style_context().remove_class('search')
     self.header_search.set_text(self.search)
 
+    self.revealer      = self.main.get_object('revealer_main')
+    self.finder_search = self.main.get_object('finder_search_entry')
+    self.finder_next   = self.main.get_object('finder_button_next')
+    self.finder_prev   = self.main.get_object('finder_button_prev')
+    self.finder_label  = self.main.get_object('finder_label')
+
+    self.finder = WebKit2.FindController(web_view=self.webview)
+    self.finder.connect('counted-matches', self.on_finder_counted_matches)
+    self.finder.connect('found-text', self.on_finder_found_text)
+    self.finder.connect('failed-to-find-text', self.on_finder_failed_to_find_text)
+
     self.window = self.main.get_object('window_main')
     self.window.show_all()
 
     self.create_settings_path()
     self.inject_custom_styles()
     self.enable_persistent_cookies()
+    self.set_window_accel_groups()
 
   def run(self):
     Gtk.main()
@@ -85,6 +97,13 @@ class DevdocsDesktop:
     self.header_save.set_visible(visible)
     self.header_search.set_visible(not visible)
 
+  def search_webview(self):
+    text = self.finder_search.get_text()
+    opts = WebKit2.FindOptions.WRAP_AROUND | WebKit2.FindOptions.CASE_INSENSITIVE
+
+    self.finder.count_matches(text, opts, 100)
+    self.finder.search(text, opts, 100)
+
   def create_settings_path(self):
     if not os.path.exists(self.settings_path()):
       os.makedirs(self.settings_path())
@@ -105,23 +124,38 @@ class DevdocsDesktop:
     self.cookies.set_accept_policy(policy)
     self.cookies.set_persistent_storage(filepath, storage)
 
+  def set_window_accel_groups(self):
+    group = Gtk.AccelGroup()
+    ctrl  = Gdk.ModifierType.CONTROL_MASK
+
+    group.connect(Gdk.keyval_from_name('f'), ctrl, 0, self.on_revealer_accel_pressed)
+    self.window.add_accel_group(group)
+
+  def on_revealer_accel_pressed(self, _group, _widget, _code, _modifier):
+    self.revealer.set_reveal_child(True)
 
   def on_window_main_destroy(self, _event):
     self.quit()
 
   def on_window_main_key_release_event(self, _widget, event):
-    kname   = Gdk.keyval_name(event.keyval)
-    text    = self.header_search.get_text()
-    visible = self.header_search.get_visible()
+    kname  = Gdk.keyval_name(event.keyval)
+    text   = self.header_search.get_text()
+    search = self.header_search.get_visible()
+    finder = self.finder_search.get_visible()
 
-    if kname == 'Escape' and visible:
+    if kname == 'Escape' and finder:
+      self.revealer.set_reveal_child(False)
+      self.finder.search_finish()
+      self.webview.grab_focus()
+
+    if kname == 'Escape' and search and not finder:
       self.header_search.set_text('')
       self.header_search.grab_focus()
 
-    if kname == 'Tab' and text and visible:
+    if kname == 'Tab' and text and search:
       self.webview.grab_focus()
 
-    if kname == 'Down' and visible:
+    if kname == 'Down' and search:
       self.webview.grab_focus()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
@@ -130,6 +164,12 @@ class DevdocsDesktop:
     if kname == 'Return':
       self.webview.grab_focus()
       self.js_click_element('._list-result.focus')
+
+  def on_finder_search_entry_key_release_event(self, _widget, event):
+    kname = Gdk.keyval_name(event.keyval)
+
+    if kname == 'Return':
+      self.finder.search_next()
 
   def on_header_button_back_clicked(self, _widget):
     self.webview.go_back()
@@ -158,6 +198,35 @@ class DevdocsDesktop:
     self.toggle_save_button(False)
     self.js_click_element('._sidebar-footer ._settings-btn')
     self.header_title.set_label('Downloading...')
+
+  def on_finder_search_entry_map(self, _widget):
+    self.finder_search.grab_focus()
+    self.search_webview()
+
+  def on_finder_search_entry_search_changed(self, _widget):
+    self.search_webview()
+
+  def on_finder_button_next_clicked(self, _widget):
+    self.finder.search_next()
+
+  def on_finder_button_prev_clicked(self, _widget):
+    self.finder.search_previous()
+
+  def on_finder_button_close_clicked(self, _widget):
+    self.revealer.set_reveal_child(False)
+    self.finder.search_finish()
+
+  def on_finder_counted_matches(self, _controller, count):
+    label = "%s matches found" % count
+    self.finder_label.set_label(label)
+
+  def on_finder_found_text(self, _controller, count):
+    self.finder_next.set_sensitive(True)
+    self.finder_prev.set_sensitive(True)
+
+  def on_finder_failed_to_find_text(self, _controller):
+    self.finder_next.set_sensitive(False)
+    self.finder_prev.set_sensitive(False)
 
   def on_webview_decide_policy(self, _widget, decision, dtype):
     types = WebKit2.PolicyDecisionType

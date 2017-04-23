@@ -155,6 +155,9 @@
                         <property name="primary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">False</property>
                         <property name="placeholder_text" translatable="yes">Find in page...</property>
+                        <signal name="key-release-event" handler="on_finder_search_entry_key_release_event" swapped="no"/>
+                        <signal name="map" handler="on_finder_search_entry_map" swapped="no"/>
+                        <signal name="search-changed" handler="on_finder_search_entry_search_changed" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -198,8 +201,10 @@
                     <child>
                       <object class="GtkButton" id="finder_button_prev">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="clicked" handler="on_finder_button_prev_clicked" swapped="no"/>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
@@ -217,8 +222,10 @@
                     <child>
                       <object class="GtkButton" id="finder_button_next">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="clicked" handler="on_finder_button_next_clicked" swapped="no"/>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
@@ -250,6 +257,7 @@
                     <property name="receives_default">True</property>
                     <property name="relief">none</property>
                     <property name="always_show_image">True</property>
+                    <signal name="clicked" handler="on_finder_button_close_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage">
                         <property name="visible">True</property>
@@ -263,6 +271,19 @@
                     <property name="fill">True</property>
                     <property name="pack_type">end</property>
                     <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="finder_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
+                    <property name="label" translatable="yes">0 matches</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>
