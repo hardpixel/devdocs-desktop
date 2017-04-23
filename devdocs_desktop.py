@@ -73,10 +73,6 @@ class DevdocsDesktop:
     url = "%s#q=%s" % (self.app_url, self.search)
     return url
 
-  def create_settings_path(self):
-    if not os.path.exists(self.settings_path()):
-      os.makedirs(self.settings_path())
-
   def settings_path(self, filepath=''):
     root = "%s/devdocs-desktop" % os.path.expanduser('~/.config')
     return os.path.join(root, filepath)
@@ -84,6 +80,14 @@ class DevdocsDesktop:
   def file_path(self, filepath):
     root = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(root, filepath)
+
+  def toggle_save_button(self, visible):
+    self.header_save.set_visible(visible)
+    self.header_search.set_visible(not visible)
+
+  def create_settings_path(self):
+    if not os.path.exists(self.settings_path()):
+      os.makedirs(self.settings_path())
 
   def inject_custom_styles(self):
     style = open(self.file_path('styles/user.css'), 'r').read()
@@ -101,9 +105,6 @@ class DevdocsDesktop:
     self.cookies.set_accept_policy(policy)
     self.cookies.set_persistent_storage(filepath, storage)
 
-  def toggle_save_button(self, visible):
-    self.header_save.set_visible(visible)
-    self.header_search.set_visible(not visible)
 
   def on_window_main_destroy(self, _event):
     self.quit()
