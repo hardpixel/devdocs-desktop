@@ -148,7 +148,7 @@ class DevdocsDesktop:
     kname  = Gdk.keyval_name(event.keyval)
     text   = self.header_search.get_text()
     search = self.header_search.get_visible()
-    finder = self.finder_search.get_visible()
+    finder = self.revealer.get_reveal_child()
 
     if kname == 'Escape' and finder:
       self.revealer.set_reveal_child(False)
