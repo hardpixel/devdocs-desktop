@@ -203,7 +203,7 @@ class DevdocsDesktop:
 
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
-    self.js_click_element('._sidebar-footer ._settings-btn')
+    self.js_click_element('._settings-btn-save')
     self.header_title.set_label('Downloading...')
 
   def on_finder_search_entry_map(self, _widget):
