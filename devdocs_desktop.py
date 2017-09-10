@@ -32,9 +32,13 @@ class DevdocsDesktop:
     self.main.add_from_file(self.file_path('ui/main.ui'))
     self.main.connect_signals(self)
 
+    self.settings = WebKit2.Settings()
+    self.settings.set_enable_offline_web_application_cache(False)
+
     self.cookies = WebKit2.WebContext.get_default().get_cookie_manager()
     self.manager = WebKit2.UserContentManager()
     self.webview = WebKit2.WebView.new_with_user_content_manager(self.manager)
+    self.webview.set_settings(self.settings)
     self.webview.load_uri(self.url_with_search())
 
     self.history = self.webview.get_back_forward_list()
