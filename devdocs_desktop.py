@@ -204,7 +204,7 @@ class DevdocsDesktop:
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
     self.js_click_element('._settings-btn-save')
-    self.header_title.set_label('Downloading...')
+    self.header_title.set_label('Saving...')
 
   def on_finder_search_entry_map(self, _widget):
     self.finder_search.grab_focus()
