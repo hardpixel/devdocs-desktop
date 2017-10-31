@@ -2,10 +2,13 @@
 
 import os
 import gi
+import sys
+import dbus
 import shutil
 import signal
 import argparse
 import webbrowser
+import dbus.service
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
@@ -13,6 +16,10 @@ gi.require_version('GLib', '2.0')
 gi.require_version('WebKit2', '4.0')
 
 from gi.repository import Gtk, Gdk, GLib, WebKit2
+from dbus.mainloop.glib import DBusGMainLoop
+
+BUS_NAME = 'org.hardpixel.DevdocsDesktop'
+BUS_PATH = '/org/hardpixel/DevdocsDesktop'
 
 
 class DevdocsDesktop:
@@ -85,6 +92,11 @@ class DevdocsDesktop:
 
   def quit(self):
     Gtk.main_quit()
+
+  def search_term(self, term):
+    self.search = term
+    self.header_search.set_text(self.search)
+    self.webview.load_uri(self.url_with_search())
 
   def url_with_search(self):
     url = "%s#q=%s" % (self.app_url, self.search)
@@ -308,8 +320,30 @@ class DevdocsDesktop:
     self.js_click_element(link)
 
 
+class DevdocsDesktopService(dbus.service.Object):
+
+  def __init__(self, app):
+    self.app = app
+    bus_name = dbus.service.BusName(BUS_NAME, bus=dbus.SessionBus())
+    dbus.service.Object.__init__(self, bus_name, BUS_PATH)
+
+  @dbus.service.method(dbus_interface=BUS_NAME)
+
+  def search(self, argv):
+    term = str(argv[-1])
+    self.app.search_term(term)
+    self.app.window.present_with_time(Gdk.CURRENT_TIME)
+
+
 if __name__ == '__main__':
+  DBusGMainLoop(set_as_default=True)
   signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-  devdocs = DevdocsDesktop()
-  devdocs.run()
+  if dbus.SessionBus().request_name(BUS_NAME) != dbus.bus.REQUEST_NAME_REPLY_PRIMARY_OWNER:
+    devdocs = dbus.SessionBus().get_object(BUS_NAME, BUS_PATH)
+    method  = devdocs.get_dbus_method('search')
+    method(sys.argv)
+  else:
+    devdocs = DevdocsDesktop()
+    service = DevdocsDesktopService(devdocs)
+    devdocs.run()
