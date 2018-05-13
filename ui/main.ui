@@ -138,11 +138,9 @@
             <property name="can_focus">False</property>
             <property name="transition_type">slide-up</property>
             <child>
-              <object class="GtkBox" id="finder_box">
+              <object class="GtkActionBar" id="finder_box">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="border_width">6</property>
-                <property name="spacing">6</property>
                 <child>
                   <object class="GtkBox" id="finder_box_search">
                     <property name="visible">True</property>
