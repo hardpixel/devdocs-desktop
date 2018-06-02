@@ -314,6 +314,18 @@ class DevdocsDesktop:
     script = script % text
     self.webview.run_javascript(script)
 
+  def js_keyboard_event(self, selector, keycode, type='keydown'):
+    script = """
+    var fe = %s;
+    var ev = new KeyboardEvent('%s', { which: %s });
+    if (fe) { fe.dispatchEvent(ev); }
+    """
+
+    target = 'document' if selector == 'html' else "$('%s')" % selector
+    script = script % (target, type, keycode)
+
+    self.webview.run_javascript(script)
+
   def js_click_element(self, selector):
     script = "var sl = $('%s'); if (sl) { sl.click(); }" % selector
     self.webview.run_javascript(script)
