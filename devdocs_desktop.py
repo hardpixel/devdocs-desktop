@@ -181,6 +181,9 @@ class DevdocsDesktop:
     if kname == 'Down' and search:
       self.webview.grab_focus()
 
+    if kname == 'slash' and not finder:
+      self.header_search.grab_focus_without_selecting()
+
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
 
