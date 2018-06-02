@@ -162,7 +162,6 @@ class DevdocsDesktop:
 
   def on_window_main_key_release_event(self, _widget, event):
     kname  = Gdk.keyval_name(event.keyval)
-    text   = self.header_search.get_text()
     search = self.header_search.get_visible()
     finder = self.revealer.get_reveal_child()
 
@@ -175,11 +174,16 @@ class DevdocsDesktop:
       self.header_search.set_text('')
       self.header_search.grab_focus()
 
-    if kname == 'Tab' and text and search:
-      self.webview.grab_focus()
-
     if kname == 'slash' and not finder:
       self.header_search.grab_focus_without_selecting()
+
+  def on_window_main_key_press_event(self, _widget, event):
+    kname  = Gdk.keyval_name(event.keyval)
+    text   = self.header_search.get_text()
+    search = self.header_search.get_visible()
+
+    if kname == 'Tab' and text and search:
+      self.webview.grab_focus()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
