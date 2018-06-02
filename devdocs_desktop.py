@@ -178,18 +178,26 @@ class DevdocsDesktop:
     if kname == 'Tab' and text and search:
       self.webview.grab_focus()
 
-    if kname == 'Down' and search:
-      self.webview.grab_focus()
-
     if kname == 'slash' and not finder:
       self.header_search.grab_focus_without_selecting()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
 
+    if kname == 'BackSpace':
+      self.js_keyboard_event('._search', 8)
+
     if kname == 'Return':
+      self.js_keyboard_event('html', 13)
       self.webview.grab_focus()
-      self.js_click_element('._list-result.focus')
+
+    if kname == 'Down':
+      self.js_keyboard_event('html', 40)
+      self.webview.grab_focus()
+
+    if kname == 'Up':
+      self.js_keyboard_event('html', 38)
+      self.webview.grab_focus()
 
   def on_finder_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
