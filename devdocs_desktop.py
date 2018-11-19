@@ -195,9 +195,9 @@ class DevdocsDesktop:
 
   def read_settings_json(self, filename):
     path = self.settings_path('%s.json' % filename)
-    data = open(path).read() if os.path.exists(path) else None
+    data = open(path).read() if os.path.exists(path) else '{}'
 
-    return json.loads(data)
+    return json.loads(str(data))
 
   def set_window_accel_groups(self):
     group = Gtk.AccelGroup()
