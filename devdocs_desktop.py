@@ -211,6 +211,7 @@ class DevdocsDesktop:
 
     if kname == 'Escape':
       self.header_search.set_text('')
+      self.do_update_header_filter('')
       self.header_search.grab_focus()
 
     if kname == 'BackSpace' and not focus:
@@ -269,14 +270,17 @@ class DevdocsDesktop:
   def on_header_button_back_clicked(self, _widget):
     self.webview.go_back()
     self.header_search.set_text('')
+    self.do_update_header_filter('')
 
   def on_header_button_forward_clicked(self, _widget):
     self.webview.go_forward()
     self.header_search.set_text('')
+    self.do_update_header_filter('')
 
   def on_header_button_reload_clicked(self, _widget):
     self.webview.reload()
     self.header_search.set_text('')
+    self.do_update_header_filter('')
 
   def on_header_search_entry_search_changed(self, widget):
     search = widget.get_text()
@@ -289,6 +293,7 @@ class DevdocsDesktop:
     link = '' if link == 'home' else link
 
     self.header_search.set_text('')
+    self.do_update_header_filter('')
     self.js_open_link(link)
 
   def on_header_button_save_clicked(self, _widget):
