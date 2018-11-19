@@ -3,6 +3,7 @@
 import os
 import gi
 import sys
+import json
 import dbus
 import shutil
 import signal
@@ -35,6 +36,8 @@ class DevdocsDesktop:
     self.search    = self.args.parse_args().s
     self.open_link = False
     self.filter    = ''
+    self.options   = self.read_cookies_json()
+    self.globals   = Gtk.Settings.get_default()
 
     self.main = Gtk.Builder()
     self.main.add_from_file(self.file_path('ui/main.ui'))
@@ -44,6 +47,8 @@ class DevdocsDesktop:
     self.settings.set_enable_offline_web_application_cache(True)
 
     self.cookies = WebKit2.WebContext.get_default().get_cookie_manager()
+    self.cookies.connect('changed', self.on_cookies_changed)
+
     self.manager = WebKit2.UserContentManager()
     self.webview = WebKit2.WebView.new_with_user_content_manager(self.manager)
     self.webview.set_settings(self.settings)
@@ -91,6 +96,7 @@ class DevdocsDesktop:
     self.add_custom_widget_styles()
     self.enable_persistent_cookies()
     self.set_window_accel_groups()
+    self.toggle_theme_variation()
 
   def run(self):
     Gtk.main()
@@ -114,6 +120,13 @@ class DevdocsDesktop:
   def file_path(self, filepath):
     root = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(root, filepath)
+
+  def toggle_theme_variation(self):
+    dark_site  = bool(self.options.get('dark', False))
+    dark_theme = self.globals.get_property('gtk-application-prefer-dark-theme')
+
+    if dark_site != dark_theme:
+      self.globals.set_property('gtk-application-prefer-dark-theme', dark_site)
 
   def toggle_save_button(self, visible):
     self.header_save.set_visible(visible)
@@ -161,6 +174,31 @@ class DevdocsDesktop:
     self.cookies.set_accept_policy(policy)
     self.cookies.set_persistent_storage(filepath, storage)
 
+  def retrieve_cookies_values(self):
+    self.cookies.get_cookies(self.app_url, None, self.save_cookies_values)
+
+  def save_cookies_values(self, _manager, result):
+    data = self.cookies.get_cookies_finish(result)
+    data = [(item.get_name(), item.get_value()) for item in data]
+
+    self.options = dict(data)
+
+    self.save_cookies_json(self.options)
+    self.toggle_theme_variation()
+
+  def save_cookies_json(self, cookies):
+    data = json.dumps(cookies)
+    path = self.settings_path('cookies.json')
+    file = open(path, 'w')
+
+    file.write(data)
+
+  def read_cookies_json(self):
+    path = self.settings_path('cookies.json')
+    data = open(path).read() if os.path.exists(path) else None
+
+    return json.loads(data)
+
   def set_window_accel_groups(self):
     group = Gtk.AccelGroup()
     ctrl  = Gdk.ModifierType.CONTROL_MASK
@@ -185,6 +223,9 @@ class DevdocsDesktop:
       self.header_search.set_text('')
     else:
       self.filter = ''
+
+  def on_cookies_changed(self, _manager):
+    self.retrieve_cookies_values()
 
   def on_revealer_accel_pressed(self, _group, _widget, _code, _modifier):
     self.revealer.set_reveal_child(True)
