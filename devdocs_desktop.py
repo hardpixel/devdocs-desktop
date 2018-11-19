@@ -37,6 +37,7 @@ class DevdocsDesktop:
     self.open_link = False
     self.filter    = ''
     self.options   = self.read_settings_json('cookies')
+    self.prefs     = self.read_settings_json('prefs')
     self.globals   = Gtk.Settings.get_default()
 
     self.main = Gtk.Builder()
@@ -97,6 +98,7 @@ class DevdocsDesktop:
     self.enable_persistent_cookies()
     self.set_window_accel_groups()
     self.toggle_theme_variation()
+    self.set_zoom_level()
 
   def run(self):
     Gtk.main()
@@ -131,6 +133,9 @@ class DevdocsDesktop:
   def toggle_save_button(self, visible):
     self.header_save.set_visible(visible)
     self.header_search.set_visible(not visible)
+
+  def set_zoom_level(self):
+    self.webview.set_zoom_level(self.prefs.get('zoom', 1.0))
 
   def search_webview(self):
     text = self.finder_search.get_text()
@@ -204,6 +209,16 @@ class DevdocsDesktop:
     ctrl  = Gdk.ModifierType.CONTROL_MASK
 
     group.connect(Gdk.keyval_from_name('f'), ctrl, 0, self.on_revealer_accel_pressed)
+
+    group.connect(Gdk.keyval_from_name('KP_Subtract'), ctrl, 0, self.on_zoom_decrease_accel_pressed)
+    group.connect(Gdk.keyval_from_name('minus'), ctrl, 0, self.on_zoom_decrease_accel_pressed)
+
+    group.connect(Gdk.keyval_from_name('KP_Add'), ctrl, 0, self.on_zoom_increase_accel_pressed)
+    group.connect(Gdk.keyval_from_name('plus'), ctrl, 0, self.on_zoom_increase_accel_pressed)
+
+    group.connect(Gdk.keyval_from_name('KP_0'), ctrl, 0, self.on_zoom_reset_accel_pressed)
+    group.connect(Gdk.keyval_from_name('0'), ctrl, 0, self.on_zoom_reset_accel_pressed)
+
     self.window.add_accel_group(group)
 
   def update_header_filter(self, text, async_js=False):
@@ -229,6 +244,24 @@ class DevdocsDesktop:
 
   def on_revealer_accel_pressed(self, _group, _widget, _code, _modifier):
     self.revealer.set_reveal_child(True)
+
+  def on_zoom_decrease_accel_pressed(self, _group, _widget, _code, _modifier):
+    self.prefs['zoom'] = round(self.webview.get_zoom_level() - 0.1, 1)
+
+    self.set_zoom_level()
+    self.write_settings_json('prefs', self.prefs)
+
+  def on_zoom_increase_accel_pressed(self, _group, _widget, _code, _modifier):
+    self.prefs['zoom'] = round(self.webview.get_zoom_level() + 0.1, 1)
+
+    self.set_zoom_level()
+    self.write_settings_json('prefs', self.prefs)
+
+  def on_zoom_reset_accel_pressed(self, _group, _widget, _code, _modifier):
+    self.prefs['zoom'] = 1.0
+
+    self.set_zoom_level()
+    self.write_settings_json('prefs', self.prefs)
 
   def on_window_main_destroy(self, _event):
     self.quit()
