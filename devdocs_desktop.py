@@ -36,7 +36,7 @@ class DevdocsDesktop:
     self.search    = self.args.parse_args().s
     self.open_link = False
     self.filter    = ''
-    self.options   = self.read_cookies_json()
+    self.options   = self.read_settings_json('cookies')
     self.globals   = Gtk.Settings.get_default()
 
     self.main = Gtk.Builder()
@@ -183,18 +183,18 @@ class DevdocsDesktop:
 
     self.options = dict(data)
 
-    self.save_cookies_json(self.options)
+    self.write_settings_json('cookies', self.options)
     self.toggle_theme_variation()
 
-  def save_cookies_json(self, cookies):
-    data = json.dumps(cookies)
-    path = self.settings_path('cookies.json')
+  def write_settings_json(self, filename, data):
+    data = json.dumps(data)
+    path = self.settings_path('%s.json' % filename)
     file = open(path, 'w')
 
     file.write(data)
 
-  def read_cookies_json(self):
-    path = self.settings_path('cookies.json')
+  def read_settings_json(self, filename):
+    path = self.settings_path('%s.json' % filename)
     data = open(path).read() if os.path.exists(path) else None
 
     return json.loads(data)
