@@ -343,8 +343,15 @@ class DevdocsDesktop:
 
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
-    self.js_click_element('._settings-btn-save')
-    self.header_title.set_label('Saving...')
+    self.js_element_visible('._settings-btn-save', self.on_apply_button_visibility)
+
+  def on_apply_button_visibility(self, visible):
+    if visible:
+      self.header_title.set_label('Downloading...')
+      self.js_click_element('._settings-btn-save')
+    else:
+      self.header_title.set_label('Saving...')
+      self.js_open_link('')
 
   def on_finder_search_entry_map(self, _widget):
     self.finder_search.grab_focus()
@@ -464,6 +471,16 @@ class DevdocsDesktop:
     data = data.get_js_value()
 
     callback(data.to_string())
+
+  def js_element_visible(self, selector, callback):
+    script = "var sl = $('%s'); if (sl) { window.getComputedStyle(sl).display !== 'none'; }" % selector
+    self.webview.run_javascript(script, None, self.js_result_visibility, callback)
+
+  def js_result_visibility(self, _webview, result, callback):
+    data = self.webview.run_javascript_finish(result)
+    data = data.get_js_value()
+
+    callback(data.to_boolean())
 
 
 class DevdocsDesktopService(dbus.service.Object):
