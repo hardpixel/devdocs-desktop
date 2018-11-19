@@ -34,6 +34,7 @@ class DevdocsDesktop:
     self.app_url   = 'https://devdocs.io'
     self.search    = self.args.parse_args().s
     self.open_link = False
+    self.filter    = ''
 
     self.main = Gtk.Builder()
     self.main.add_from_file(self.file_path('ui/main.ui'))
@@ -167,10 +168,23 @@ class DevdocsDesktop:
     group.connect(Gdk.keyval_from_name('f'), ctrl, 0, self.on_revealer_accel_pressed)
     self.window.add_accel_group(group)
 
-  def update_header_filter(self, text):
-    self.header_filter.set_label(text)
-    self.header_filter.set_visible(bool(text))
-    self.header_search.set_text('')
+  def update_header_filter(self, text, async_js=False):
+    self.filter = text
+
+    if async_js:
+      self.js_element_value('._search-tag', self.do_update_header_filter)
+    else:
+      self.do_update_header_filter(text)
+
+  def do_update_header_filter(self, text):
+    filter_exists = bool(text)
+    self.header_filter.set_visible(filter_exists)
+
+    if filter_exists:
+      self.header_filter.set_label(text)
+      self.header_search.set_text('')
+    else:
+      self.filter = ''
 
   def on_revealer_accel_pressed(self, _group, _widget, _code, _modifier):
     self.revealer.set_reveal_child(True)
@@ -202,7 +216,7 @@ class DevdocsDesktop:
 
     if kname == 'Tab' and text and search:
       self.js_keyboard_event('._search', 9)
-      self.update_header_filter(text)
+      self.update_header_filter(text, True)
 
       return True
 
@@ -248,9 +262,8 @@ class DevdocsDesktop:
     self.header_search.set_text('')
 
   def on_header_search_entry_search_changed(self, widget):
-    filter = self.header_filter.get_label()
     search = widget.get_text()
-    search = "%s %s" % (filter, search)
+    search = "%s %s" % (self.filter, search)
 
     self.js_form_input(search.strip())
 
@@ -374,6 +387,16 @@ class DevdocsDesktop:
   def js_open_link(self, link):
     link = """a[href="/%s"]""" % link.split(self.app_url)[-1]
     self.js_click_element(link)
+
+  def js_element_value(self, selector, callback):
+    script = "var sl = $('%s'); if (sl) { sl.innerText; }" % selector
+    self.webview.run_javascript(script, None, self.js_result_value, callback)
+
+  def js_result_value(self, _webview, result, callback):
+    data = self.webview.run_javascript_finish(result)
+    data = data.get_js_value()
+
+    callback(data.to_string())
 
 
 class DevdocsDesktopService(dbus.service.Object):
