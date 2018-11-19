@@ -202,12 +202,29 @@ class DevdocsDesktop:
       self.finder.search_finish()
       self.webview.grab_focus()
 
-    if kname == 'Escape' and search and not finder:
+    if search and not finder:
+      self.on_window_main_search_key_release_event(kname, event)
+
+  def on_window_main_search_key_release_event(self, kname, event):
+    text  = self.header_search.get_text()
+    focus = self.header_search.has_focus()
+
+    if kname == 'Escape':
       self.header_search.set_text('')
       self.header_search.grab_focus()
 
-    if kname == 'slash' and not finder:
+    if kname == 'BackSpace' and not focus:
       self.header_search.grab_focus_without_selecting()
+      self.header_search.delete_text(len(text) - 1, -1)
+      self.header_search.set_position(-1)
+
+    if kname == 'slash' and not focus:
+      self.header_search.grab_focus_without_selecting()
+
+    if len(kname) == 1 and not focus:
+      self.header_search.grab_focus_without_selecting()
+      self.header_search.insert_text(kname, -1)
+      self.header_search.set_position(-1)
 
   def on_window_main_key_press_event(self, _widget, event):
     kname  = Gdk.keyval_name(event.keyval)
