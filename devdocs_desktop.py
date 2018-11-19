@@ -215,7 +215,7 @@ class DevdocsDesktop:
       self.do_update_header_filter(text)
 
   def do_update_header_filter(self, text):
-    filter_exists = bool(text)
+    filter_exists = bool(text.strip())
     self.header_filter.set_visible(filter_exists)
 
     if filter_exists:
@@ -248,10 +248,13 @@ class DevdocsDesktop:
 
   def on_window_main_search_key_release_event(self, kname, event):
     text  = self.header_search.get_text()
+    value = bool(text.strip())
     focus = self.header_search.has_focus()
 
-    if kname == 'Escape':
+    if kname == 'Escape' and value:
       self.header_search.set_text('')
+
+    if kname == 'Escape':
       self.header_search.grab_focus()
 
     if kname == 'BackSpace' and not focus:
@@ -270,9 +273,10 @@ class DevdocsDesktop:
   def on_window_main_key_press_event(self, _widget, event):
     kname  = Gdk.keyval_name(event.keyval)
     text   = self.header_search.get_text()
+    value  = bool(text.strip())
     search = self.header_search.get_visible()
 
-    if kname == 'Tab' and text and search:
+    if kname == 'Tab' and value and search:
       self.js_keyboard_event('._search', 9)
       self.update_header_filter(text, True)
 
@@ -281,8 +285,9 @@ class DevdocsDesktop:
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
     text  = self.header_search.get_text()
+    value = bool(text.strip())
 
-    if kname == 'BackSpace' and not text:
+    if kname == 'BackSpace' and not value:
       self.update_header_filter(text)
       self.js_form_input(text)
 
