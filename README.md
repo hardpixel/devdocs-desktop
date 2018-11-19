@@ -20,4 +20,4 @@ Arch Linux: [AUR Package](https://aur.archlinux.org/packages/devdocs-desktop)
 Bug reports and pull requests are welcome on GitHub at https://github.com/hardpixel/devdocs-desktop.
 
 ## License
-Unite Shell is available as open source under the terms of the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html)
+DevDocs Desktop is available as open source under the terms of the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html)
