@@ -1,0 +1,8 @@
+.header-label,
+.header-label:active,
+.header-label:hover,
+.header-label:focus {
+  background: rgba(0, 0, 0, 0.1);
+  border: 0;
+  box-shadow: none;
+}

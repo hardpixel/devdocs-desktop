@@ -254,6 +254,22 @@
             <property name="position">3</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkButton" id="header_button_filter">
+            <property name="label" translatable="yes">Filter</property>
+            <property name="can_focus">False</property>
+            <property name="focus_on_click">False</property>
+            <property name="receives_default">False</property>
+            <property name="no_show_all">True</property>
+            <style>
+              <class name="header-label"/>
+            </style>
+          </object>
+          <packing>
+            <property name="pack_type">end</property>
+            <property name="position">5</property>
+          </packing>
+        </child>
       </object>
     </child>
     <child>
@@ -413,7 +429,7 @@
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">dialog-close</property>
+                        <property name="icon_name">edit-delete-symbolic.symbolic</property>
                       </object>
                     </child>
                   </object>

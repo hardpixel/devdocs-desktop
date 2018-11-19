@@ -64,6 +64,9 @@ class DevdocsDesktop:
     self.header_title   = self.main.get_object('header_label_title')
     self.header_save    = self.main.get_object('header_button_save')
 
+    self.header_filter = self.main.get_object('header_button_filter')
+    self.header_filter.set_label('')
+
     self.header_search = self.main.get_object('header_search_entry')
     self.header_search.get_style_context().remove_class('search')
     self.header_search.set_text(self.search)
@@ -84,6 +87,7 @@ class DevdocsDesktop:
 
     self.create_settings_path()
     self.inject_custom_styles()
+    self.add_custom_widget_styles()
     self.enable_persistent_cookies()
     self.set_window_accel_groups()
 
@@ -139,6 +143,15 @@ class DevdocsDesktop:
 
     self.manager.add_style_sheet(style)
 
+  def add_custom_widget_styles(self):
+    screen   = Gdk.Screen.get_default()
+    priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    provider = Gtk.CssProvider()
+    filename = self.file_path('styles/window.css')
+
+    provider.load_from_path(filename)
+    Gtk.StyleContext.add_provider_for_screen(screen, provider, priority)
+
   def enable_persistent_cookies(self):
     filepath = self.settings_path('cookies.txt')
     storage  = WebKit2.CookiePersistentStorage.TEXT
@@ -153,6 +166,11 @@ class DevdocsDesktop:
 
     group.connect(Gdk.keyval_from_name('f'), ctrl, 0, self.on_revealer_accel_pressed)
     self.window.add_accel_group(group)
+
+  def update_header_filter(self, text):
+    self.header_filter.set_label(text)
+    self.header_filter.set_visible(bool(text))
+    self.header_search.set_text('')
 
   def on_revealer_accel_pressed(self, _group, _widget, _code, _modifier):
     self.revealer.set_reveal_child(True)
@@ -183,10 +201,18 @@ class DevdocsDesktop:
     search = self.header_search.get_visible()
 
     if kname == 'Tab' and text and search:
-      self.webview.grab_focus()
+      self.js_keyboard_event('._search', 9)
+      self.update_header_filter(text)
+
+      return True
 
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
+    text  = self.header_search.get_text()
+
+    if kname == 'BackSpace' and not text:
+      self.update_header_filter(text)
+      self.js_form_input(text)
 
     if kname == 'BackSpace':
       self.js_keyboard_event('._search', 8)
@@ -222,8 +248,11 @@ class DevdocsDesktop:
     self.header_search.set_text('')
 
   def on_header_search_entry_search_changed(self, widget):
-    text = widget.get_text()
-    self.js_form_input(text)
+    filter = self.header_filter.get_label()
+    search = widget.get_text()
+    search = "%s %s" % (filter, search)
+
+    self.js_form_input(search.strip())
 
   def on_menu_main_link_clicked(self, widget):
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
