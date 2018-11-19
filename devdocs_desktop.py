@@ -252,7 +252,6 @@ class DevdocsDesktop:
 
     if kname == 'Escape':
       self.header_search.set_text('')
-      self.do_update_header_filter('')
       self.header_search.grab_focus()
 
     if kname == 'BackSpace' and not focus:
