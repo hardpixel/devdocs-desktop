@@ -279,6 +279,8 @@
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkScrolledWindow" id="scrolled_main">
+            <property name="width_request">980</property>
+            <property name="height_request">580</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="min_content_width">800</property>
