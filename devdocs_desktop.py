@@ -36,6 +36,7 @@ class DevdocsDesktop:
     self.search    = self.args.parse_args().s
     self.open_link = False
     self.filter    = ''
+    self.unfilter  = False
     self.options   = self.read_settings_json('cookies')
     self.prefs     = self.read_settings_json('prefs')
     self.globals   = Gtk.Settings.get_default()
@@ -221,19 +222,12 @@ class DevdocsDesktop:
 
     self.window.add_accel_group(group)
 
-  def update_header_filter(self, text, async_js=False):
-    self.filter = text
-
-    if async_js:
-      self.js_element_value('._search-tag', self.do_update_header_filter)
-    else:
-      self.do_update_header_filter(text)
-
-  def do_update_header_filter(self, text):
+  def update_header_filter(self, text):
     filter_exists = bool(text.strip())
     self.header_filter.set_visible(filter_exists)
 
     if filter_exists:
+      self.filter = text.strip()
       self.header_filter.set_label(text)
       self.reset_header_search()
     else:
@@ -241,9 +235,11 @@ class DevdocsDesktop:
 
   def reset_header_filter(self):
     self.update_header_filter('')
+    self.unfilter = False
 
   def reset_header_search(self):
     self.header_search.set_text('')
+    self.unfilter = True
 
   def reset_search_state(self):
     self.reset_header_search()
@@ -321,7 +317,7 @@ class DevdocsDesktop:
 
     if kname == 'Tab' and value and search:
       self.js_keyboard_event('._search', 9)
-      self.update_header_filter(text, True)
+      self.js_element_value('._search-tag', self.update_header_filter)
 
       return True
 
@@ -330,12 +326,13 @@ class DevdocsDesktop:
     text  = self.header_search.get_text()
     value = bool(text.strip())
 
-    if kname == 'BackSpace' and not value:
-      self.update_header_filter(text)
-      self.js_form_input(text)
-
-    if kname == 'BackSpace':
+    if kname == 'BackSpace' and not value and self.unfilter:
+      self.reset_header_filter()
       self.js_keyboard_event('._search', 8)
+
+    if kname == 'BackSpace' and not value:
+      self.unfilter = True
+      self.js_form_input(text)
 
     if kname == 'Return':
       self.js_keyboard_event('html', 13)
@@ -368,10 +365,8 @@ class DevdocsDesktop:
     self.reset_search_state()
 
   def on_header_search_entry_search_changed(self, widget):
-    search = widget.get_text()
-    search = "%s %s" % (self.filter, search)
-
-    self.js_form_input(search.strip())
+    self.unfilter = False
+    self.js_form_input(widget.get_text())
 
   def on_menu_main_link_clicked(self, widget):
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
