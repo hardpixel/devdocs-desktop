@@ -235,9 +235,19 @@ class DevdocsDesktop:
 
     if filter_exists:
       self.header_filter.set_label(text)
-      self.header_search.set_text('')
+      self.reset_header_search()
     else:
       self.filter = ''
+
+  def reset_header_filter(self):
+    self.update_header_filter('')
+
+  def reset_header_search(self):
+    self.header_search.set_text('')
+
+  def reset_search_state(self):
+    self.reset_header_search()
+    self.reset_header_filter()
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
@@ -285,7 +295,7 @@ class DevdocsDesktop:
     focus = self.header_search.has_focus()
 
     if kname == 'Escape' and value:
-      self.header_search.set_text('')
+      self.reset_header_search()
 
     if kname == 'Escape':
       self.header_search.grab_focus()
@@ -347,18 +357,15 @@ class DevdocsDesktop:
 
   def on_header_button_back_clicked(self, _widget):
     self.webview.go_back()
-    self.header_search.set_text('')
-    self.do_update_header_filter('')
+    self.reset_search_state()
 
   def on_header_button_forward_clicked(self, _widget):
     self.webview.go_forward()
-    self.header_search.set_text('')
-    self.do_update_header_filter('')
+    self.reset_search_state()
 
   def on_header_button_reload_clicked(self, _widget):
     self.webview.reload()
-    self.header_search.set_text('')
-    self.do_update_header_filter('')
+    self.reset_search_state()
 
   def on_header_search_entry_search_changed(self, widget):
     search = widget.get_text()
@@ -370,8 +377,7 @@ class DevdocsDesktop:
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
     link = '' if link == 'home' else link
 
-    self.header_search.set_text('')
-    self.do_update_header_filter('')
+    self.reset_search_state()
     self.js_open_link(link)
 
   def on_header_button_save_clicked(self, _widget):
