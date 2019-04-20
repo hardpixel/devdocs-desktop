@@ -293,6 +293,9 @@ class DevdocsDesktop:
     if kname == 'Escape' and value:
       self.reset_header_search()
 
+    if kname == 'Escape' and not value and self.webview.has_focus():
+      self.reset_header_filter()
+
     if kname == 'Escape':
       self.header_search.grab_focus()
 
