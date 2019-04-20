@@ -428,8 +428,9 @@ class DevdocsDesktop:
         webbrowser.open(uri)
 
   def on_webview_title_changed(self, _widget, _title):
-    title = self.webview.get_title()
-    self.header_title.set_label(title.replace(' — DevDocs', ''))
+    title = self.webview.get_title().replace(' — DevDocs', '')
+    self.header_title.set_label(title)
+    self.window.set_title(title)
 
   def on_webview_uri_changed(self, _widget, _uri):
     save = self.webview.get_uri().endswith('settings')
