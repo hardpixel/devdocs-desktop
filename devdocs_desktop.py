@@ -429,7 +429,7 @@ class DevdocsDesktop:
 
   def on_webview_title_changed(self, _widget, _title):
     title = self.webview.get_title()
-    self.header_title.set_label(title)
+    self.header_title.set_label(title.replace(' — DevDocs', ''))
 
   def on_webview_uri_changed(self, _widget, _uri):
     save = self.webview.get_uri().endswith('settings')
