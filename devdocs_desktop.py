@@ -36,7 +36,6 @@ class DevdocsDesktop:
     self.search    = self.args.parse_args().s
     self.open_link = False
     self.filter    = ''
-    self.unfilter  = False
     self.options   = self.read_settings_json('cookies')
     self.prefs     = self.read_settings_json('prefs')
     self.globals   = Gtk.Settings.get_default()
@@ -234,17 +233,13 @@ class DevdocsDesktop:
     else:
       self.filter = ''
 
-  def reset_header_filter(self):
-    self.update_header_filter('')
-    self.unfilter = False
+  def reset_header_filter(self, value=''):
+    if not bool(value.strip()):
+      self.update_header_filter('')
 
-  def reset_header_search(self):
-    self.header_search.set_text('')
-    self.unfilter = True
-
-  def reset_search_state(self):
-    self.reset_header_search()
-    self.reset_header_filter()
+  def reset_header_search(self, value=''):
+    if not bool(value.strip()):
+      self.header_search.set_text('')
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
@@ -325,18 +320,17 @@ class DevdocsDesktop:
 
       return True
 
-  def on_header_search_entry_key_release_event(self, _widget, event):
+  def on_header_search_entry_key_press_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
     text  = self.header_search.get_text()
     value = bool(text.strip())
 
-    if kname == 'BackSpace' and not value and self.unfilter:
-      self.reset_header_filter()
-      self.js_keyboard_event('._search', 8)
-
     if kname == 'BackSpace' and not value:
-      self.unfilter = True
-      self.js_form_input(text)
+      self.js_keyboard_event('._search', 8)
+      self.js_element_value('._search-tag', self.update_header_filter)
+
+  def on_header_search_entry_key_release_event(self, _widget, event):
+    kname = Gdk.keyval_name(event.keyval)
 
     if kname == 'Return':
       self.js_keyboard_event('html', 13)
@@ -358,25 +352,20 @@ class DevdocsDesktop:
 
   def on_header_button_back_clicked(self, _widget):
     self.webview.go_back()
-    self.reset_search_state()
 
   def on_header_button_forward_clicked(self, _widget):
     self.webview.go_forward()
-    self.reset_search_state()
 
   def on_header_button_reload_clicked(self, _widget):
     self.webview.reload()
-    self.reset_search_state()
 
   def on_header_search_entry_search_changed(self, widget):
-    self.unfilter = False
     self.js_form_input(widget.get_text())
 
   def on_menu_main_link_clicked(self, widget):
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
     link = '' if link == 'home' else link
 
-    self.reset_search_state()
     self.js_open_link(link)
 
   def on_header_button_save_clicked(self, _widget):
@@ -439,6 +428,9 @@ class DevdocsDesktop:
   def on_webview_uri_changed(self, _widget, _uri):
     save = self.webview.get_uri().endswith('settings')
     self.toggle_save_button(save)
+
+    self.js_element_value('._search-input', self.reset_header_search)
+    self.js_element_value('._search-tag', self.reset_header_filter)
 
   def on_history_changed(self, _list, _added, _removed):
     back = self.webview.can_go_back()
