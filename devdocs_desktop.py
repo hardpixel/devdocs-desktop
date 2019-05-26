@@ -321,15 +321,15 @@ class DevdocsDesktop:
     kname = Gdk.keyval_name(event.keyval)
 
     if kname == 'Return':
-      self.js_keyboard_event('html', 13)
+      self.js_keyboard_event('document', 13)
       self.webview.grab_focus()
 
     if kname == 'Down':
-      self.js_keyboard_event('html', 40)
+      self.js_keyboard_event('document', 40)
       self.webview.grab_focus()
 
     if kname == 'Up':
-      self.js_keyboard_event('html', 38)
+      self.js_keyboard_event('document', 38)
       self.webview.grab_focus()
 
   def on_finder_search_entry_key_release_event(self, _widget, event):
@@ -453,25 +453,25 @@ class DevdocsDesktop:
     var ev = new CustomEvent('input');
     if (fi) { fi.value = '%s' };
     if (fe) { fe.dispatchEvent(ev); }
-    """
+    """ % text
 
-    script = script % text
     self.webview.run_javascript(script)
 
   def js_keyboard_event(self, selector, keycode, type='keydown'):
     script = """
-    var fe = %s;
+    var fe = $('%s') || document;
     var ev = new KeyboardEvent('%s', { which: %s });
     if (fe) { fe.dispatchEvent(ev); }
-    """
-
-    target = 'document' if selector == 'html' else "$('%s')" % selector
-    script = script % (target, type, keycode)
+    """ % (selector, type, keycode)
 
     self.webview.run_javascript(script)
 
   def js_click_element(self, selector):
-    script = "var sl = $('%s'); if (sl) { sl.click(); }" % selector
+    script = """
+    var el = $('%s');
+    if (el) { el.click(); }
+    """ % selector
+
     self.webview.run_javascript(script)
 
   def js_open_link(self, link):
@@ -479,7 +479,11 @@ class DevdocsDesktop:
     self.js_click_element(link)
 
   def js_element_value(self, selector, callback):
-    script = "var sl = $('%s'); if (sl) { sl.value || sl.innerText; }" % selector
+    script = """
+    var el = $('%s');
+    if (el) { el.value || el.innerText; }
+    """ % selector
+
     self.webview.run_javascript(script, None, self.js_result_value, callback)
 
   def js_result_value(self, _webview, result, callback):
@@ -489,10 +493,14 @@ class DevdocsDesktop:
     callback(data.to_string())
 
   def js_element_visible(self, selector, callback):
-    script = "var sl = $('%s'); if (sl) { window.getComputedStyle(sl).display !== 'none'; }" % selector
-    self.webview.run_javascript(script, None, self.js_result_visibility, callback)
+    script = """
+    var el = $('%s');
+    if (el) { window.getComputedStyle(el).display !== 'none'; }
+    """ % selector
 
-  def js_result_visibility(self, _webview, result, callback):
+    self.webview.run_javascript(script, None, self.js_result_visible, callback)
+
+  def js_result_visible(self, _webview, result, callback):
     data = self.webview.run_javascript_finish(result)
     data = data.get_js_value()
 
