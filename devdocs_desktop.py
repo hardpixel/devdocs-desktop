@@ -33,7 +33,7 @@ class DevdocsDesktop:
     self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 
     self.app_url   = 'https://devdocs.io'
-    self.search    = self.args.parse_args().s
+    self.search    = self.args.parse_args().s.strip()
     self.open_link = False
     self.filter    = ''
     self.options   = self.read_settings_json('cookies')
@@ -282,19 +282,17 @@ class DevdocsDesktop:
       self.on_window_main_search_key_release_event(kname, event)
 
   def on_window_main_search_key_release_event(self, kname, event):
-    text  = self.header_search.get_text()
-    value = bool(text.strip())
     focus = self.header_search.has_focus()
 
-    if kname == 'Escape' and value:
-      self.reset_header_search()
+    if kname == 'Escape' and bool(self.search):
+      self.header_search.set_text('')
 
     if kname == 'Escape':
       self.header_search.grab_focus()
 
     if kname == 'BackSpace' and not focus:
       self.header_search.grab_focus_without_selecting()
-      self.header_search.delete_text(len(text) - 1, -1)
+      self.header_search.delete_text(len(self.search) - 1, -1)
       self.header_search.set_position(-1)
 
     if kname == 'slash' and not focus:
@@ -307,11 +305,9 @@ class DevdocsDesktop:
 
   def on_window_main_key_press_event(self, _widget, event):
     kname  = Gdk.keyval_name(event.keyval)
-    text   = self.header_search.get_text()
-    value  = bool(text.strip())
     search = self.header_sbox.get_visible()
 
-    if kname == 'Tab' and value and search:
+    if kname == 'Tab' and bool(self.search) and search:
       self.js_keyboard_event('._search', 9)
       self.js_element_value('._search-tag', self.update_header_filter)
 
@@ -319,10 +315,8 @@ class DevdocsDesktop:
 
   def on_header_search_entry_key_press_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
-    text  = self.header_search.get_text()
-    value = bool(text.strip())
 
-    if kname == 'BackSpace' and not value:
+    if kname == 'BackSpace' and not bool(self.search):
       self.js_keyboard_event('._search', 8)
       self.js_element_value('._search-tag', self.update_header_filter)
 
@@ -357,7 +351,8 @@ class DevdocsDesktop:
     self.webview.reload()
 
   def on_header_search_entry_search_changed(self, widget):
-    self.js_form_input(widget.get_text())
+    self.search = widget.get_text().strip()
+    self.js_form_input(self.search)
 
   def on_menu_main_link_clicked(self, widget):
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
