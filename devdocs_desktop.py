@@ -157,7 +157,7 @@ class DevdocsDesktop:
       os.makedirs(self.settings_path())
 
   def inject_custom_styles(self):
-    style = open(self.file_path('styles/user.css'), 'r').read()
+    style = open(self.file_path('styles/webview.css'), 'r').read()
     frame = WebKit2.UserContentInjectedFrames.ALL_FRAMES
     level = WebKit2.UserStyleLevel.USER
     style = WebKit2.UserStyleSheet(style, frame, level, None, None)
