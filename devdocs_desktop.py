@@ -34,8 +34,8 @@ class DevdocsDesktop:
 
     self.app_url   = 'https://devdocs.io'
     self.search    = self.args.parse_args().s.strip()
-    self.open_link = False
     self.filter    = ''
+    self.open_link = False
     self.options   = self.read_settings_json('cookies')
     self.prefs     = self.read_settings_json('prefs')
     self.globals   = Gtk.Settings.get_default()
@@ -263,6 +263,16 @@ class DevdocsDesktop:
   def on_window_main_destroy(self, _event):
     self.quit()
 
+  def on_window_main_key_press_event(self, _widget, event):
+    kname  = Gdk.keyval_name(event.keyval)
+    search = self.header_sbox.get_visible()
+
+    if kname == 'Tab' and bool(self.search) and search:
+      self.js_keyboard_event('._search', 9)
+      self.sync_header_search()
+
+      return True
+
   def on_window_main_key_release_event(self, _widget, event):
     kname  = Gdk.keyval_name(event.keyval)
     search = self.header_sbox.get_visible()
@@ -277,36 +287,28 @@ class DevdocsDesktop:
       self.on_window_main_search_key_release_event(kname, event)
 
   def on_window_main_search_key_release_event(self, kname, event):
-    focus = self.header_search.has_focus()
-
     if kname == 'Escape' and bool(self.search):
       self.header_search.set_text('')
 
+    if not self.header_search.has_focus():
+      self.on_window_main_unfocused_search_key_release_event(kname, event)
+
+  def on_window_main_unfocused_search_key_release_event(self, kname, event):
     if kname == 'Escape':
       self.header_search.grab_focus()
 
-    if kname == 'BackSpace' and not focus:
+    if kname == 'BackSpace':
       self.header_search.grab_focus_without_selecting()
       self.header_search.delete_text(len(self.search) - 1, -1)
       self.header_search.set_position(-1)
 
-    if kname == 'slash' and not focus:
+    if kname == 'slash':
       self.header_search.grab_focus_without_selecting()
 
-    if len(kname) == 1 and not focus:
+    if len(kname) == 1:
       self.header_search.grab_focus_without_selecting()
       self.header_search.insert_text(kname, -1)
       self.header_search.set_position(-1)
-
-  def on_window_main_key_press_event(self, _widget, event):
-    kname  = Gdk.keyval_name(event.keyval)
-    search = self.header_sbox.get_visible()
-
-    if kname == 'Tab' and bool(self.search) and search:
-      self.js_keyboard_event('._search', 9)
-      self.sync_header_search()
-
-      return True
 
   def on_header_search_entry_key_press_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
@@ -351,9 +353,7 @@ class DevdocsDesktop:
 
   def on_menu_main_link_clicked(self, widget):
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
-    link = '' if link == 'home' else link
-
-    self.js_open_link(link)
+    self.js_open_link(link.replace('home', ''))
 
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
