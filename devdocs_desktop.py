@@ -71,6 +71,7 @@ class DevdocsDesktop:
     self.header_forward = self.main.get_object('header_button_forward')
     self.header_title   = self.main.get_object('header_label_title')
     self.header_save    = self.main.get_object('header_button_save')
+    self.header_sbox    = self.main.get_object('header_box_search')
 
     self.header_filter = self.main.get_object('header_button_filter')
     self.header_filter.set_label('')
@@ -133,7 +134,7 @@ class DevdocsDesktop:
 
   def toggle_save_button(self, visible):
     self.header_save.set_visible(visible)
-    self.header_search.set_visible(not visible)
+    self.header_sbox.set_visible(not visible)
 
   def set_zoom_level(self):
     self.webview.set_zoom_level(self.prefs.get('zoom', 1.0))
@@ -274,7 +275,7 @@ class DevdocsDesktop:
 
   def on_window_main_key_release_event(self, _widget, event):
     kname  = Gdk.keyval_name(event.keyval)
-    search = self.header_search.get_visible()
+    search = self.header_sbox.get_visible()
     finder = self.revealer.get_reveal_child()
 
     if kname == 'Escape' and finder:
@@ -316,7 +317,7 @@ class DevdocsDesktop:
     kname  = Gdk.keyval_name(event.keyval)
     text   = self.header_search.get_text()
     value  = bool(text.strip())
-    search = self.header_search.get_visible()
+    search = self.header_sbox.get_visible()
 
     if kname == 'Tab' and value and search:
       self.js_keyboard_event('._search', 9)

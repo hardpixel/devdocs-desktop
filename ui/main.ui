@@ -240,32 +240,44 @@
           </packing>
         </child>
         <child>
-          <object class="GtkSearchEntry" id="header_search_entry">
+          <object class="GtkBox" id="header_box_search">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="has_focus">True</property>
-            <property name="primary_icon_name">edit-find-symbolic</property>
-            <property name="primary_icon_activatable">False</property>
-            <property name="primary_icon_sensitive">False</property>
-            <property name="placeholder_text" translatable="yes">Search...</property>
-            <signal name="key-release-event" handler="on_header_search_entry_key_release_event" swapped="no"/>
-            <signal name="search-changed" handler="on_header_search_entry_search_changed" swapped="no"/>
-          </object>
-          <packing>
-            <property name="pack_type">end</property>
-            <property name="position">3</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButton" id="header_button_filter">
-            <property name="label" translatable="yes">Filter</property>
             <property name="can_focus">False</property>
-            <property name="focus_on_click">False</property>
-            <property name="receives_default">False</property>
-            <property name="no_show_all">True</property>
-            <style>
-              <class name="header-label"/>
-            </style>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkButton" id="header_button_filter">
+                <property name="label" translatable="yes">Filter</property>
+                <property name="can_focus">False</property>
+                <property name="focus_on_click">False</property>
+                <property name="receives_default">False</property>
+                <property name="no_show_all">True</property>
+                <style>
+                  <class name="header-label"/>
+                </style>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSearchEntry" id="header_search_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="primary_icon_name">edit-find-symbolic</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">False</property>
+                <property name="placeholder_text" translatable="yes">Search...</property>
+                <signal name="key-release-event" handler="on_header_search_entry_key_release_event" swapped="no"/>
+                <signal name="search-changed" handler="on_header_search_entry_search_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="pack_type">end</property>
