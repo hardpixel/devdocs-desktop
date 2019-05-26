@@ -243,7 +243,6 @@
           <object class="GtkBox" id="header_box_search">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">6</property>
             <child>
               <object class="GtkButton" id="header_button_filter">
                 <property name="label" translatable="yes">Filter</property>
@@ -252,7 +251,7 @@
                 <property name="receives_default">False</property>
                 <property name="no_show_all">True</property>
                 <style>
-                  <class name="header-label"/>
+                  <class name="suggested-action"/>
                 </style>
               </object>
               <packing>
@@ -279,6 +278,9 @@
                 <property name="position">1</property>
               </packing>
             </child>
+            <style>
+              <class name="linked"/>
+            </style>
           </object>
           <packing>
             <property name="pack_type">end</property>
