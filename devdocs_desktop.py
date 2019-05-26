@@ -502,7 +502,7 @@ class DevdocsDesktop:
     self.js_click_element(link)
 
   def js_element_value(self, selector, callback):
-    script = "var sl = $('%s'); if (sl) { sl.innerText; }" % selector
+    script = "var sl = $('%s'); if (sl) { sl.value || sl.innerText; }" % selector
     self.webview.run_javascript(script, None, self.js_result_value, callback)
 
   def js_result_value(self, _webview, result, callback):
