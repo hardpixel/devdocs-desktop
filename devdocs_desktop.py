@@ -222,24 +222,19 @@ class DevdocsDesktop:
 
     self.window.add_accel_group(group)
 
+  def sync_header_search(self):
+    self.js_element_value('._search-tag', self.update_header_filter)
+    self.js_element_value('._search-input', self.update_header_search)
+
   def update_header_filter(self, text):
-    filter_exists = bool(text.strip())
-    self.header_filter.set_visible(filter_exists)
-
-    if filter_exists:
-      self.filter = text.strip()
+    if text != self.filter:
+      self.filter = text
       self.header_filter.set_label(text)
-      self.reset_header_search()
-    else:
-      self.filter = ''
+      self.header_filter.set_visible(bool(text))
 
-  def reset_header_filter(self, value=''):
-    if not bool(value.strip()):
-      self.update_header_filter('')
-
-  def reset_header_search(self, value=''):
-    if not bool(value.strip()):
-      self.header_search.set_text('')
+  def update_header_search(self, text):
+    if text != self.search:
+      self.header_search.set_text(text)
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
@@ -309,7 +304,7 @@ class DevdocsDesktop:
 
     if kname == 'Tab' and bool(self.search) and search:
       self.js_keyboard_event('._search', 9)
-      self.js_element_value('._search-tag', self.update_header_filter)
+      self.sync_header_search()
 
       return True
 
@@ -318,7 +313,7 @@ class DevdocsDesktop:
 
     if kname == 'BackSpace' and not bool(self.search):
       self.js_keyboard_event('._search', 8)
-      self.js_element_value('._search-tag', self.update_header_filter)
+      self.sync_header_search()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
@@ -420,9 +415,7 @@ class DevdocsDesktop:
   def on_webview_uri_changed(self, _widget, _uri):
     save = self.webview.get_uri().endswith('settings')
     self.toggle_save_button(save)
-
-    self.js_element_value('._search-input', self.reset_header_search)
-    self.js_element_value('._search-tag', self.reset_header_filter)
+    self.sync_header_search()
 
   def on_history_changed(self, _list, _added, _removed):
     back = self.webview.can_go_back()
