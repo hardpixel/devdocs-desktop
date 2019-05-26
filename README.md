@@ -10,7 +10,7 @@ If a string is provided, the application will open the first available result pa
 
 ## Requirements
 ```
-python, python-gobject, webkit2gtk
+python python-gobject python-dbus webkit2gtk
 ```
 
 ## Installation
