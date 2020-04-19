@@ -448,8 +448,8 @@ class DevdocsDesktop:
 
   def js_form_input(self, text):
     script = """
-    var fi = $('._search-input');
-    var fe = $('._search');
+    var fi = document.querySelector('._search-input');
+    var fe = document.querySelector('._search');
     var ev = new CustomEvent('input');
     if (fi) { fi.value = '%s' };
     if (fe) { fe.dispatchEvent(ev); }
@@ -459,7 +459,7 @@ class DevdocsDesktop:
 
   def js_keyboard_event(self, selector, keycode, type='keydown'):
     script = """
-    var fe = $('%s') || document;
+    var fe = document.querySelector('%s') || document;
     var ev = new KeyboardEvent('%s', { which: %s });
     if (fe) { fe.dispatchEvent(ev); }
     """ % (selector, type, keycode)
@@ -468,7 +468,7 @@ class DevdocsDesktop:
 
   def js_click_element(self, selector):
     script = """
-    var el = $('%s');
+    var el = document.querySelector('%s');
     if (el) { el.click(); }
     """ % selector
 
@@ -480,7 +480,7 @@ class DevdocsDesktop:
 
   def js_element_value(self, selector, callback):
     script = """
-    var el = $('%s');
+    var el = document.querySelector('%s');
     if (el) { el.value || el.innerText; }
     """ % selector
 
@@ -494,7 +494,7 @@ class DevdocsDesktop:
 
   def js_element_visible(self, selector, callback):
     script = """
-    var el = $('%s');
+    var el = document.querySelector('%s');
     if (el) { window.getComputedStyle(el).display !== 'none'; }
     """ % selector
 
