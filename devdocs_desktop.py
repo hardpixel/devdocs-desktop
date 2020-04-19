@@ -124,7 +124,8 @@ class DevdocsDesktop:
     return os.path.join(root, filepath)
 
   def toggle_theme_variation(self):
-    dark_site  = bool(self.options.get('dark', False))
+    site_theme = self.options.get('theme', 'light')
+    dark_site  = bool(self.options.get('dark', site_theme == 'dark'))
     dark_theme = self.globals.get_property('gtk-application-prefer-dark-theme')
 
     if dark_site != dark_theme:
