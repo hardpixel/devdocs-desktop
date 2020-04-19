@@ -5,7 +5,6 @@ import gi
 import sys
 import json
 import dbus
-import shutil
 import signal
 import argparse
 import webbrowser
@@ -146,14 +145,10 @@ class DevdocsDesktop:
     self.finder.search(text, opts, 100)
 
   def create_settings_path(self):
-    new_path = self.settings_path()
-    old_path = os.path.expanduser('~/.devdocs-desktop')
+    path = self.settings_path()
 
-    if os.path.exists(old_path):
-      shutil.move(old_path, new_path)
-
-    if not os.path.exists(new_path):
-      os.makedirs(self.settings_path())
+    if not os.path.exists(path):
+      os.makedirs(path)
 
   def inject_custom_styles(self):
     style = open(self.file_path('styles/webview.css'), 'r').read()
