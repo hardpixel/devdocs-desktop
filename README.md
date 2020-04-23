@@ -1,6 +1,6 @@
 ## DevDocs Desktop
 
-![DevDocs](https://github.com/Thibaut/devdocs) desktop application created with GTK3 and Python.
+![DevDocs](https://github.com/freeCodeCamp/devdocs) desktop application created with GTK3 and Python.
 
 ![DevDocs Desktop](https://github.com/hardpixel/devdocs-desktop/raw/master/screenshot.png)
 
