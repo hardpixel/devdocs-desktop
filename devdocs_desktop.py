@@ -21,6 +21,24 @@ from dbus.mainloop.glib import DBusGMainLoop
 BUS_NAME = 'org.hardpixel.DevdocsDesktop'
 BUS_PATH = '/org/hardpixel/DevdocsDesktop'
 
+CTX_MENU = [
+  WebKit2.ContextMenuAction.GO_BACK,
+  WebKit2.ContextMenuAction.GO_FORWARD,
+  WebKit2.ContextMenuAction.STOP,
+  WebKit2.ContextMenuAction.RELOAD,
+  WebKit2.ContextMenuAction.COPY,
+  WebKit2.ContextMenuAction.CUT,
+  WebKit2.ContextMenuAction.PASTE,
+  WebKit2.ContextMenuAction.DELETE,
+  WebKit2.ContextMenuAction.SELECT_ALL,
+  WebKit2.ContextMenuAction.OPEN_LINK,
+  WebKit2.ContextMenuAction.COPY_LINK_TO_CLIPBOARD,
+  WebKit2.ContextMenuAction.COPY_IMAGE_TO_CLIPBOARD,
+  WebKit2.ContextMenuAction.COPY_IMAGE_URL_TO_CLIPBOARD,
+  WebKit2.ContextMenuAction.COPY_VIDEO_LINK_TO_CLIPBOARD,
+  WebKit2.ContextMenuAction.COPY_AUDIO_LINK_TO_CLIPBOARD
+]
+
 
 class DevdocsDesktop:
 
@@ -31,13 +49,12 @@ class DevdocsDesktop:
     self.args = argparse.ArgumentParser(prog='devdocs-desktop')
     self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 
-    self.app_url   = 'https://devdocs.io'
-    self.search    = self.args.parse_args().s.strip()
-    self.filter    = ''
-    self.open_link = False
-    self.options   = self.read_settings_json('cookies')
-    self.prefs     = self.read_settings_json('prefs')
-    self.globals   = Gtk.Settings.get_default()
+    self.app_url = 'https://devdocs.io'
+    self.search  = self.args.parse_args().s.strip()
+    self.filter  = ''
+    self.options = self.read_settings_json('cookies')
+    self.prefs   = self.read_settings_json('prefs')
+    self.globals = Gtk.Settings.get_default()
 
     self.main = Gtk.Builder()
     self.main.add_from_file(self.file_path('ui/main.ui'))
@@ -403,13 +420,11 @@ class DevdocsDesktop:
     self.finder_prev.set_sensitive(False)
 
   def on_webview_decide_policy(self, _widget, decision, dtype):
-    types = WebKit2.PolicyDecisionType
+    if dtype == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
+      nav = decision.get_navigation_action()
+      uri = nav.get_request().get_uri()
 
-    if self.open_link and dtype == types.NAVIGATION_ACTION:
-      self.open_link = False
-      uri = decision.get_request().get_uri()
-
-      if not self.app_url in uri:
+      if not uri.startswith(self.app_url):
         decision.ignore()
         webbrowser.open(uri)
 
@@ -430,27 +445,12 @@ class DevdocsDesktop:
     forward = self.webview.can_go_forward()
     self.header_forward.set_sensitive(forward)
 
-  def on_webview_open_link(self, action):
-    self.open_link = True
-
   def on_webview_context_menu(self, _widget, menu, _coords, _keyboard):
-    actions = WebKit2.ContextMenuAction
-    include = [
-      actions.GO_BACK, actions.GO_FORWARD, actions.STOP, actions.RELOAD,
-      actions.COPY, actions.CUT, actions.PASTE, actions.DELETE, actions.SELECT_ALL,
-      actions.OPEN_LINK, actions.COPY_LINK_TO_CLIPBOARD,
-      actions.COPY_IMAGE_TO_CLIPBOARD, actions.COPY_IMAGE_URL_TO_CLIPBOARD,
-      actions.COPY_VIDEO_LINK_TO_CLIPBOARD, actions.COPY_AUDIO_LINK_TO_CLIPBOARD
-    ]
-
     for item in menu.get_items():
       action = item.get_stock_action()
 
-      if not action in include:
+      if not item.is_separator() and not action in CTX_MENU:
         menu.remove(item)
-
-      if action == actions.OPEN_LINK:
-        item.get_action().connect('activate', self.on_webview_open_link)
 
 
 class DevdocsDesktopService(dbus.service.Object):
