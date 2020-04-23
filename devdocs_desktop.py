@@ -94,6 +94,7 @@ class DevdocsDesktop:
 
     self.create_settings_path()
     self.inject_custom_styles()
+    self.inject_custom_scripts()
     self.add_custom_widget_styles()
     self.enable_persistent_cookies()
     self.set_window_accel_groups()
@@ -159,6 +160,14 @@ class DevdocsDesktop:
 
     self.manager.add_style_sheet(style)
 
+  def inject_custom_scripts(self):
+    script = open(self.file_path('scripts/webview.js'), 'r').read()
+    frame  = WebKit2.UserContentInjectedFrames.ALL_FRAMES
+    time   = WebKit2.UserScriptInjectionTime.END
+    script = WebKit2.UserScript(script, frame, time, None, None)
+
+    self.manager.add_script(script)
+
   def add_custom_widget_styles(self):
     screen   = Gdk.Screen.get_default()
     priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
@@ -219,8 +228,8 @@ class DevdocsDesktop:
     self.window.add_accel_group(group)
 
   def sync_header_search(self):
-    self.js_element_value('._search-tag', self.update_header_filter)
-    self.js_element_value('._search-input', self.update_header_search)
+    self.js_element_value('searchTag', self.update_header_filter)
+    self.js_element_value('searchInput', self.update_header_search)
 
   def update_header_filter(self, text):
     if text != self.filter:
@@ -264,7 +273,7 @@ class DevdocsDesktop:
     search = self.header_sbox.get_visible()
 
     if kname == 'Tab' and bool(self.search) and search:
-      self.js_keyboard_event('._search', 9)
+      self.js_keyboard_event('search', 9)
       self.sync_header_search()
 
       return True
@@ -310,7 +319,7 @@ class DevdocsDesktop:
     kname = Gdk.keyval_name(event.keyval)
 
     if kname == 'BackSpace' and not bool(self.search):
-      self.js_keyboard_event('._search', 8)
+      self.js_keyboard_event('search', 8)
       self.sync_header_search()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
@@ -353,12 +362,12 @@ class DevdocsDesktop:
 
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
-    self.js_element_visible('._settings-btn-save', self.on_apply_button_visibility)
+    self.js_element_visible('saveButton', self.on_apply_button_visibility)
 
   def on_apply_button_visibility(self, visible):
     if visible:
       self.header_title.set_label('Downloading...')
-      self.js_click_element('._settings-btn-save')
+      self.js_click_element('saveButton')
     else:
       self.header_title.set_label('Saving...')
       self.js_open_link('')
@@ -443,43 +452,23 @@ class DevdocsDesktop:
         item.get_action().connect('activate', self.on_webview_open_link)
 
   def js_form_input(self, text):
-    script = """
-    var fi = document.querySelector('._search-input');
-    var fe = document.querySelector('._search');
-    var ev = new CustomEvent('input');
-    if (fi) { fi.value = '%s' };
-    if (fe) { fe.dispatchEvent(ev); }
-    """ % text
-
+    script = """desktop.search('%s')""" % text
     self.webview.run_javascript(script)
 
   def js_keyboard_event(self, selector, keycode, type='keydown'):
-    script = """
-    var fe = document.querySelector('%s') || document;
-    var ev = new KeyboardEvent('%s', { which: %s });
-    if (fe) { fe.dispatchEvent(ev); }
-    """ % (selector, type, keycode)
-
+    script = """desktop.sendKey('%s', '%s', %s)""" % (selector, type, keycode)
     self.webview.run_javascript(script)
 
   def js_click_element(self, selector):
-    script = """
-    var el = document.querySelector('%s');
-    if (el) { el.click(); }
-    """ % selector
-
+    script = """desktop.click('%s')""" % selector
     self.webview.run_javascript(script)
 
   def js_open_link(self, link):
-    link = """a[href="/%s"]""" % link.split(self.app_url)[-1]
-    self.js_click_element(link)
+    script = """desktop.navigate('%s', '%s')""" % (self.app_url, link)
+    self.webview.run_javascript(script)
 
   def js_element_value(self, selector, callback):
-    script = """
-    var el = document.querySelector('%s');
-    if (el) { el.value || el.innerText; }
-    """ % selector
-
+    script = """desktop.getValue('%s')""" % selector
     self.webview.run_javascript(script, None, self.js_result_value, callback)
 
   def js_result_value(self, _webview, result, callback):
@@ -489,11 +478,7 @@ class DevdocsDesktop:
     callback(data.to_string())
 
   def js_element_visible(self, selector, callback):
-    script = """
-    var el = document.querySelector('%s');
-    if (el) { window.getComputedStyle(el).display !== 'none'; }
-    """ % selector
-
+    script = """desktop.isVisible('%s')""" % selector
     self.webview.run_javascript(script, None, self.js_result_visible, callback)
 
   def js_result_visible(self, _webview, result, callback):
