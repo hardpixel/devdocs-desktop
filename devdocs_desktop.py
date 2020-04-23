@@ -359,8 +359,6 @@ class DevdocsDesktop:
 
   def on_menu_main_link_clicked(self, widget):
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
-    link = link.replace('home', '')
-
     self.run_javascript('navigate', link)
 
   def on_header_button_save_clicked(self, _widget):
@@ -373,7 +371,7 @@ class DevdocsDesktop:
       self.run_javascript('click', 'saveButton')
     else:
       self.header_title.set_label('Saving...')
-      self.run_javascript('navigate', '')
+      self.run_javascript('navigate', 'home')
 
   def on_finder_search_entry_map(self, _widget):
     self.finder_search.grab_focus()

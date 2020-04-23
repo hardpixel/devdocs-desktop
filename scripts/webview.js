@@ -82,7 +82,9 @@ class DevDocsDesktop {
   }
 
   navigate(path) {
-    const element = this.query(`a[href="/${path}"]`)
+    const pathKey = path.replace('home', '')
+    const element = this.query(`a[href="/${pathKey}"]`)
+
     element && element.click()
   }
 }
