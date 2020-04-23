@@ -95,7 +95,6 @@ class DevdocsDesktop:
     self.create_settings_path()
     self.inject_custom_styles()
     self.inject_custom_scripts()
-    self.add_custom_widget_styles()
     self.enable_persistent_cookies()
     self.set_window_accel_groups()
     self.toggle_theme_variation()
@@ -170,15 +169,6 @@ class DevdocsDesktop:
 
     self.manager.connect('script-message-received::desktop', self.on_script_message)
     self.manager.register_script_message_handler('desktop')
-
-  def add_custom_widget_styles(self):
-    screen   = Gdk.Screen.get_default()
-    priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-    provider = Gtk.CssProvider()
-    filename = self.file_path('styles/window.css')
-
-    provider.load_from_path(filename)
-    Gtk.StyleContext.add_provider_for_screen(screen, provider, priority)
 
   def enable_persistent_cookies(self):
     filepath = self.settings_path('cookies.txt')
