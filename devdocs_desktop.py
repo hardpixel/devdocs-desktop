@@ -463,29 +463,27 @@ class DevdocsDesktop:
       if action == actions.OPEN_LINK:
         item.get_action().connect('activate', self.on_webview_open_link)
 
-  def js_form_input(self, text):
-    script = """desktop.search('%s')""" % text
+  def run_javascript(self, method, *args):
+    script = """desktop.run('%s', %s)""" % (method, list(args))
     self.webview.run_javascript(script)
+
+  def js_form_input(self, text):
+    self.run_javascript('search', text)
 
   def js_keyboard_event(self, selector, keycode, type='keydown'):
-    script = """desktop.sendKey('%s', '%s', %s)""" % (selector, type, keycode)
-    self.webview.run_javascript(script)
+    self.run_javascript('sendKey', selector, type, keycode)
 
   def js_click_element(self, selector):
-    script = """desktop.click('%s')""" % selector
-    self.webview.run_javascript(script)
+    self.run_javascript('click', selector)
 
   def js_open_link(self, link):
-    script = """desktop.navigate('%s', '%s')""" % (self.app_url, link)
-    self.webview.run_javascript(script)
+    self.run_javascript('navigate', self.app_url, link)
 
   def js_element_value(self, selector, callback):
-    script = """desktop.getValue('%s', '%s')""" % (selector, callback)
-    self.webview.run_javascript(script)
+    self.run_javascript('getValue', selector, callback)
 
   def js_element_visible(self, selector, callback):
-    script = """desktop.isVisible('%s', '%s')""" % (selector, callback)
-    self.webview.run_javascript(script)
+    self.run_javascript('isVisible', selector, callback)
 
 
 class DevdocsDesktopService(dbus.service.Object):

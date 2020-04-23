@@ -15,6 +15,10 @@ class DevDocsDesktop {
     }
   }
 
+  run(method, args) {
+    this[method].call(this, ...args)
+  }
+
   onElement(ref, callback) {
     const element = this.ref(ref)
 
