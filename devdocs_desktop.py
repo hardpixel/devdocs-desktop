@@ -61,6 +61,7 @@ class DevdocsDesktop:
     self.main.connect_signals(self)
 
     self.settings = WebKit2.Settings()
+    self.settings.set_enable_page_cache(True)
     self.settings.set_enable_offline_web_application_cache(True)
 
     self.cookies = WebKit2.WebContext.get_default().get_cookie_manager()
