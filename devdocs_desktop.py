@@ -276,10 +276,11 @@ class DevdocsDesktop:
 
   def on_window_main_key_press_event(self, _widget, event):
     kname  = Gdk.keyval_name(event.keyval)
+    kcode  = Gdk.keyval_to_unicode(event.keyval)
     search = self.header_sbox.get_visible()
 
     if kname == 'Tab' and bool(self.search) and search:
-      self.run_javascript('sendKey', 'search', 9)
+      self.run_javascript('sendKey', 'search', kcode)
       self.sync_header_search()
 
       return True
@@ -323,24 +324,18 @@ class DevdocsDesktop:
 
   def on_header_search_entry_key_press_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
+    kcode = Gdk.keyval_to_unicode(event.keyval)
 
     if kname == 'BackSpace' and not bool(self.search):
-      self.run_javascript('sendKey', 'search', 8)
+      self.run_javascript('sendKey', 'search', kcode)
       self.sync_header_search()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
+    kcode = Gdk.keyval_to_unicode(event.keyval)
 
-    if kname == 'Return':
-      self.run_javascript('sendKey', 'document', 13)
-      self.webview.grab_focus()
-
-    if kname == 'Down':
-      self.run_javascript('sendKey', 'document', 40)
-      self.webview.grab_focus()
-
-    if kname == 'Up':
-      self.run_javascript('sendKey', 'document', 38)
+    if kname in ['Return', 'Down', 'Up']:
+      self.run_javascript('sendKey', 'document', kcode)
       self.webview.grab_focus()
 
   def on_finder_search_entry_key_release_event(self, _widget, event):
