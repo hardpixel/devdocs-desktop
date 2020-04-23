@@ -249,7 +249,7 @@ class DevdocsDesktop:
     data = json.loads(data.to_json(0))
     attr = data['callback']
 
-    if attr:
+    if attr and hasattr(self, attr):
       callback = getattr(self, attr)
       callback(data['value'])
 
