@@ -247,11 +247,11 @@ class DevdocsDesktop:
   def on_script_message(self, manager, data):
     data = data.get_js_value()
     data = json.loads(data.to_json(0))
-    attr = data['callback']
+    attr = data.get('callback')
 
     if attr and hasattr(self, attr):
       callback = getattr(self, attr)
-      callback(data['value'])
+      callback(data.get('value'))
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
