@@ -63,9 +63,9 @@ class DevDocsDesktop {
     })
   }
 
-  sendKey(ref, type, code) {
+  sendKey(ref, code, type) {
     this.onElement(ref, (element) => {
-      const event = new KeyboardEvent(type, { which: code })
+      const event = new KeyboardEvent(type || 'keydown', { which: code })
       element.dispatchEvent(event)
     })
   }
@@ -81,10 +81,8 @@ class DevDocsDesktop {
     this.dispatchEvent('search', 'input')
   }
 
-  navigate(appUrl, url) {
-    const absPath = url.replace(appUrl, '')
-    const element = this.query(`a[href="/${absPath}"]`)
-
+  navigate(path) {
+    const element = this.query(`a[href="/${path}"]`)
     element && element.click()
   }
 }

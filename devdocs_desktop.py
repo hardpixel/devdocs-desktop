@@ -213,6 +213,10 @@ class DevdocsDesktop:
 
     return json.loads(str(data))
 
+  def run_javascript(self, method, *args):
+    script = """desktop.run('%s', %s)""" % (method, list(args))
+    self.webview.run_javascript(script)
+
   def set_window_accel_groups(self):
     group = Gtk.AccelGroup()
     ctrl  = Gdk.ModifierType.CONTROL_MASK
@@ -231,8 +235,8 @@ class DevdocsDesktop:
     self.window.add_accel_group(group)
 
   def sync_header_search(self):
-    self.js_element_value('searchTag', 'update_header_filter')
-    self.js_element_value('searchInput', 'update_header_search')
+    self.run_javascript('getValue', 'searchTag', 'update_header_filter')
+    self.run_javascript('getValue', 'searchInput', 'update_header_search')
 
   def update_header_filter(self, text):
     if text != self.filter:
@@ -285,7 +289,7 @@ class DevdocsDesktop:
     search = self.header_sbox.get_visible()
 
     if kname == 'Tab' and bool(self.search) and search:
-      self.js_keyboard_event('search', 9)
+      self.run_javascript('sendKey', 'search', 9)
       self.sync_header_search()
 
       return True
@@ -331,22 +335,22 @@ class DevdocsDesktop:
     kname = Gdk.keyval_name(event.keyval)
 
     if kname == 'BackSpace' and not bool(self.search):
-      self.js_keyboard_event('search', 8)
+      self.run_javascript('sendKey', 'search', 8)
       self.sync_header_search()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)
 
     if kname == 'Return':
-      self.js_keyboard_event('document', 13)
+      self.run_javascript('sendKey', 'document', 13)
       self.webview.grab_focus()
 
     if kname == 'Down':
-      self.js_keyboard_event('document', 40)
+      self.run_javascript('sendKey', 'document', 40)
       self.webview.grab_focus()
 
     if kname == 'Up':
-      self.js_keyboard_event('document', 38)
+      self.run_javascript('sendKey', 'document', 38)
       self.webview.grab_focus()
 
   def on_finder_search_entry_key_release_event(self, _widget, event):
@@ -366,23 +370,25 @@ class DevdocsDesktop:
 
   def on_header_search_entry_search_changed(self, widget):
     self.search = widget.get_text().strip()
-    self.js_form_input(self.search)
+    self.run_javascript('search', self.search)
 
   def on_menu_main_link_clicked(self, widget):
     link = Gtk.Buildable.get_name(widget).split('_')[-1]
-    self.js_open_link(link.replace('home', ''))
+    link = link.replace('home', '')
+
+    self.run_javascript('navigate', link)
 
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
-    self.js_element_visible('saveButton', 'on_apply_button_visibility')
+    self.run_javascript('isVisible', 'saveButton', 'on_apply_button_visibility')
 
   def on_apply_button_visibility(self, visible):
     if visible:
       self.header_title.set_label('Downloading...')
-      self.js_click_element('saveButton')
+      self.run_javascript('click', 'saveButton')
     else:
       self.header_title.set_label('Saving...')
-      self.js_open_link('')
+      self.run_javascript('navigate', '')
 
   def on_finder_search_entry_map(self, _widget):
     self.finder_search.grab_focus()
@@ -462,28 +468,6 @@ class DevdocsDesktop:
 
       if action == actions.OPEN_LINK:
         item.get_action().connect('activate', self.on_webview_open_link)
-
-  def run_javascript(self, method, *args):
-    script = """desktop.run('%s', %s)""" % (method, list(args))
-    self.webview.run_javascript(script)
-
-  def js_form_input(self, text):
-    self.run_javascript('search', text)
-
-  def js_keyboard_event(self, selector, keycode, type='keydown'):
-    self.run_javascript('sendKey', selector, type, keycode)
-
-  def js_click_element(self, selector):
-    self.run_javascript('click', selector)
-
-  def js_open_link(self, link):
-    self.run_javascript('navigate', self.app_url, link)
-
-  def js_element_value(self, selector, callback):
-    self.run_javascript('getValue', selector, callback)
-
-  def js_element_visible(self, selector, callback):
-    self.run_javascript('isVisible', selector, callback)
 
 
 class DevdocsDesktopService(dbus.service.Object):
