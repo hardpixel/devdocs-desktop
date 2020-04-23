@@ -49,12 +49,13 @@ class DevdocsDesktop:
     self.args = argparse.ArgumentParser(prog='devdocs-desktop')
     self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 
-    self.app_url = 'https://devdocs.io'
-    self.search  = self.args.parse_args().s.strip()
-    self.filter  = ''
-    self.options = self.read_settings_json('cookies')
-    self.prefs   = self.read_settings_json('prefs')
-    self.globals = Gtk.Settings.get_default()
+    self.app_url   = 'https://devdocs.io'
+    self.search    = self.args.parse_args().s.strip()
+    self.filter    = ''
+    self.open_link = False
+    self.options   = self.read_settings_json('cookies')
+    self.prefs     = self.read_settings_json('prefs')
+    self.globals   = Gtk.Settings.get_default()
 
     self.main = Gtk.Builder()
     self.main.add_from_file(self.file_path('ui/main.ui'))
@@ -424,8 +425,11 @@ class DevdocsDesktop:
     if dtype == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
       nav = decision.get_navigation_action()
       uri = nav.get_request().get_uri()
+      usr = self.open_link or nav.is_user_gesture()
 
-      if not uri.startswith(self.app_url):
+      self.open_link = False
+
+      if usr and not uri.startswith(self.app_url):
         decision.ignore()
         webbrowser.open(uri)
 
@@ -446,12 +450,19 @@ class DevdocsDesktop:
     forward = self.webview.can_go_forward()
     self.header_forward.set_sensitive(forward)
 
+  def on_webview_open_link(self, _action, _variant):
+    self.open_link = True
+
   def on_webview_context_menu(self, _widget, menu, _coords, _keyboard):
     for item in menu.get_items():
       action = item.get_stock_action()
 
       if not item.is_separator() and not action in CTX_MENU:
         menu.remove(item)
+
+      if action == WebKit2.ContextMenuAction.OPEN_LINK:
+        gaction = item.get_gaction()
+        gaction.connect('activate', self.on_webview_open_link)
 
 
 class DevdocsDesktopService(dbus.service.Object):
