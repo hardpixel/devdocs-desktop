@@ -23,22 +23,26 @@ class DevDocsDesktop {
     }
   }
 
-  postMessage(value) {
+  postMessage(value, callback) {
     webkit.messageHandlers.desktop.postMessage({
-      value: value
+      value: value,
+      callback: callback
     })
   }
 
-  isVisible(ref) {
-    return this.onElement(ref, (element) => {
+  isVisible(ref, callback) {
+    this.onElement(ref, (element) => {
       const style = getComputedStyle(element)
-      return style.display !== 'none'
+      const value = style.display !== 'none'
+
+      this.postMessage(value, callback)
     })
   }
 
-  getValue(ref) {
-    return this.onElement(ref, (element) => {
-      return element.value || element.innerText
+  getValue(ref, callback) {
+    this.onElement(ref, (element) => {
+      const value = element.value || element.innerText
+      this.postMessage(value, callback)
     })
   }
 

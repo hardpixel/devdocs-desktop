@@ -168,6 +168,9 @@ class DevdocsDesktop:
 
     self.manager.add_script(script)
 
+    self.manager.connect('script-message-received::desktop', self.on_script_message)
+    self.manager.register_script_message_handler('desktop')
+
   def add_custom_widget_styles(self):
     screen   = Gdk.Screen.get_default()
     priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
@@ -228,8 +231,8 @@ class DevdocsDesktop:
     self.window.add_accel_group(group)
 
   def sync_header_search(self):
-    self.js_element_value('searchTag', self.update_header_filter)
-    self.js_element_value('searchInput', self.update_header_search)
+    self.js_element_value('searchTag', 'update_header_filter')
+    self.js_element_value('searchInput', 'update_header_search')
 
   def update_header_filter(self, text):
     if text != self.filter:
@@ -240,6 +243,15 @@ class DevdocsDesktop:
   def update_header_search(self, text):
     if text != self.search:
       self.header_search.set_text(text)
+
+  def on_script_message(self, manager, data):
+    data = data.get_js_value()
+    data = json.loads(data.to_json(0))
+    attr = data['callback']
+
+    if attr:
+      callback = getattr(self, attr)
+      callback(data['value'])
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
@@ -362,7 +374,7 @@ class DevdocsDesktop:
 
   def on_header_button_save_clicked(self, _widget):
     self.toggle_save_button(False)
-    self.js_element_visible('saveButton', self.on_apply_button_visibility)
+    self.js_element_visible('saveButton', 'on_apply_button_visibility')
 
   def on_apply_button_visibility(self, visible):
     if visible:
@@ -468,24 +480,12 @@ class DevdocsDesktop:
     self.webview.run_javascript(script)
 
   def js_element_value(self, selector, callback):
-    script = """desktop.getValue('%s')""" % selector
-    self.webview.run_javascript(script, None, self.js_result_value, callback)
-
-  def js_result_value(self, _webview, result, callback):
-    data = self.webview.run_javascript_finish(result)
-    data = data.get_js_value()
-
-    callback(data.to_string())
+    script = """desktop.getValue('%s', '%s')""" % (selector, callback)
+    self.webview.run_javascript(script)
 
   def js_element_visible(self, selector, callback):
-    script = """desktop.isVisible('%s')""" % selector
-    self.webview.run_javascript(script, None, self.js_result_visible, callback)
-
-  def js_result_visible(self, _webview, result, callback):
-    data = self.webview.run_javascript_finish(result)
-    data = data.get_js_value()
-
-    callback(data.to_boolean())
+    script = """desktop.isVisible('%s', '%s')""" % (selector, callback)
+    self.webview.run_javascript(script)
 
 
 class DevdocsDesktopService(dbus.service.Object):
