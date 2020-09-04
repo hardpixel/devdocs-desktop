@@ -53,6 +53,7 @@ class DevdocsDesktop:
     self.search    = self.args.parse_args().s.strip()
     self.filter    = ''
     self.open_link = False
+    self.hit_link  = None
     self.options   = self.read_settings_json('cookies')
     self.prefs     = self.read_settings_json('prefs')
     self.globals   = Gtk.Settings.get_default()
@@ -80,6 +81,8 @@ class DevdocsDesktop:
     self.webview.connect('notify::title', self.on_webview_title_changed)
     self.webview.connect('decide-policy', self.on_webview_decide_policy)
     self.webview.connect('context-menu', self.on_webview_context_menu)
+    self.webview.connect('mouse-target-changed', self.on_mouse_target_changed)
+    self.webview.connect('button-release-event', self.on_button_release)
 
     self.scrolled = self.main.get_object('scrolled_main')
     self.scrolled.add(self.webview)
@@ -463,6 +466,16 @@ class DevdocsDesktop:
       if action == WebKit2.ContextMenuAction.OPEN_LINK:
         gaction = item.get_gaction()
         gaction.connect('activate', self.on_webview_open_link)
+
+  def on_mouse_target_changed(self, _widget, hit, _modifiers):
+    if hit.context_is_link():
+      self.hit_link = hit.get_link_uri()
+    else:
+      self.hit_link = None
+
+  def on_button_release(self, _widget, _event):
+    if self.hit_link and not self.hit_link.startswith(self.app_url):
+      webbrowser.open(self.hit_link)
 
 
 class DevdocsDesktopService(dbus.service.Object):
