@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/hardpixel/devdocs-desktop/tree/HEAD)
+## [v1.1.1](https://github.com/hardpixel/devdocs-desktop/tree/v1.1.1) (2020-09-05)
 
-[Full Changelog](https://github.com/hardpixel/devdocs-desktop/compare/v1.1.0...HEAD)
+[Full Changelog](https://github.com/hardpixel/devdocs-desktop/compare/v1.1.0...v1.1.1)
 
 **Implemented enhancements:**
 
