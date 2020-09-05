@@ -428,13 +428,12 @@ class DevdocsDesktop:
     if dtype == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
       nav = decision.get_navigation_action()
       uri = nav.get_request().get_uri()
-      usr = self.open_link or nav.is_user_gesture()
+
+      if self.open_link and not uri.startswith(self.app_url):
+        webbrowser.open(uri)
+        decision.ignore()
 
       self.open_link = False
-
-      if usr and not uri.startswith(self.app_url):
-        decision.ignore()
-        webbrowser.open(uri)
 
   def on_webview_title_changed(self, _widget, _title):
     title = self.webview.get_title().replace(' — DevDocs', '')
