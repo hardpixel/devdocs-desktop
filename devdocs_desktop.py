@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 
 import os
 import gi
@@ -166,17 +166,6 @@ class DevdocsDesktop:
       self.iconified = True
     return True # dont propagate the event
 
-  def trayAccelerator(self, *data):
-    # when Cntrl+Down or Cntrl+Up is pressed, iconify
-    if (self.iconified == True): # actually, only False get catched here
-      self.window.deiconify()
-      self.window.present()
-      self.iconified = False
-    else:
-      self.window.hide()
-      self.iconified = True
-    return True
-
   def search_term(self, term):
     self.search = term
     self.header_search.set_text(self.search)
@@ -293,8 +282,8 @@ class DevdocsDesktop:
     group.connect(Gdk.keyval_from_name('KP_0'), ctrl, 0, self.on_zoom_reset_accel_pressed)
     group.connect(Gdk.keyval_from_name('0'), ctrl, 0, self.on_zoom_reset_accel_pressed)
 
-    group.connect(Gdk.keyval_from_name('Down'), ctrl, 0, self.trayAccelerator) # Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.META_MASK
-    group.connect(Gdk.keyval_from_name('Up'), ctrl, 0, self.trayAccelerator) # Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.META_MASK
+    group.connect(Gdk.keyval_from_name('Prior'), ctrl | Gdk.ModifierType.MOD1_MASK, 0, self.on_PN_accel_pressed)
+    group.connect(Gdk.keyval_from_name('Next'), ctrl | Gdk.ModifierType.MOD1_MASK, 0, self.on_PN_accel_pressed)
 
     self.window.add_accel_group(group)
 
@@ -344,6 +333,21 @@ class DevdocsDesktop:
 
     self.set_zoom_level()
     self.write_settings_json('prefs', self.prefs)
+
+  def on_PN_accel_pressed(self, _group, _widget, _code, _modifier):
+    # when Cntrl+Meta+PgDown or Cntrl+Meta+PgUp is pressed, iconify
+    is_CM = (_modifier & Gdk.ModifierType.MODIFIER_MASK) == \
+            (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.MOD1_MASK)
+    if is_CM:
+      if (self.iconified == True): # doesn't happen
+        self.window.deiconify()
+        self.window.present()
+        self.iconified = False
+      else:
+        self.window.hide()
+        self.iconified = True
+      return True
+    return False
 
   def on_window_main_destroy(self, _event):
     self.quit()
