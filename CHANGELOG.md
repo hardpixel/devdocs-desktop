@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.2.0](https://github.com/hardpixel/devdocs-desktop/tree/v1.2.0) (2020-12-06)
+
+[Full Changelog](https://github.com/hardpixel/devdocs-desktop/compare/v1.1.1...v1.2.0)
+
+**Merged pull requests:**
+
+- Revert "Provides support to minimize to system tray" [\#22](https://github.com/hardpixel/devdocs-desktop/pull/22) ([jonian](https://github.com/jonian))
+
 ## [v1.1.1](https://github.com/hardpixel/devdocs-desktop/tree/v1.1.1) (2020-09-05)
 
 [Full Changelog](https://github.com/hardpixel/devdocs-desktop/compare/v1.1.0...v1.1.1)
@@ -61,6 +69,7 @@
 
 **Merged pull requests:**
 
+- Provides support to minimize to system tray [\#21](https://github.com/hardpixel/devdocs-desktop/pull/21) ([andrecbarros](https://github.com/andrecbarros))
 - url ref for source code devdocs [\#5](https://github.com/hardpixel/devdocs-desktop/pull/5) ([gutierri](https://github.com/gutierri))
 - XDG on settings folder [\#4](https://github.com/hardpixel/devdocs-desktop/pull/4) ([gutierri](https://github.com/gutierri))
 - update requirements [\#2](https://github.com/hardpixel/devdocs-desktop/pull/2) ([gutierri](https://github.com/gutierri))
