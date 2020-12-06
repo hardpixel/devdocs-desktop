@@ -252,8 +252,8 @@ class DevdocsDesktop:
     self.header_filter.set_visible(bool(label))
 
   def on_search_input_changed(self, text):
-    self.search = text
-    self.header_search.set_text(text)
+    if text != self.search:
+      self.header_search.set_text(text)
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
