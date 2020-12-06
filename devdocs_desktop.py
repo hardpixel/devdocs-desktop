@@ -360,7 +360,7 @@ class DevdocsDesktop:
     self.webview.reload()
 
   def on_header_search_entry_search_changed(self, widget):
-    self.search = widget.get_text().strip()
+    self.search = widget.get_text()
     self.run_javascript('search', self.search)
 
   def on_menu_main_link_clicked(self, widget):
