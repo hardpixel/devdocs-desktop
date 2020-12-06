@@ -96,7 +96,6 @@ class DevdocsDesktop:
     self.header_filter.set_label('')
 
     self.header_search = self.main.get_object('header_search_entry')
-    self.header_search.get_style_context().remove_class('search')
     self.header_search.set_text('')
 
     self.revealer      = self.main.get_object('revealer_main')
