@@ -1,6 +1,8 @@
 class DevDocsDesktop {
   constructor(refs) {
     this.refs = refs
+
+    this.observe('settings', this.syncSettings, { attributes: true }, true)
   }
 
   query(selector) {
@@ -32,6 +34,23 @@ class DevDocsDesktop {
       value: value,
       callback: callback
     })
+  }
+
+  observe(ref, cb, options, immediate) {
+    const callback = cb.bind(this)
+    const observer = new MutationObserver(callback)
+
+    if (immediate) {
+      callback.call(this)
+    }
+
+    this.onElement(ref, (element) => {
+      observer.observe(element, options)
+    })
+  }
+
+  syncSettings() {
+    this.isVisible('saveButton', 'on_apply_button_changed')
   }
 
   isVisible(ref, callback) {
@@ -93,5 +112,6 @@ window.desktop = new DevDocsDesktop({
   search:      '._search',
   searchTag:   '._search-tag',
   searchInput: '._search-input',
-  saveButton:  '._settings-btn-save'
+  saveButton:  '._settings-btn-save',
+  settings:    '#settings'
 })

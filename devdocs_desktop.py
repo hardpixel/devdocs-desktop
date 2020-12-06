@@ -153,10 +153,6 @@ class DevdocsDesktop:
     if dark_site != dark_theme:
       self.globals.set_property('gtk-application-prefer-dark-theme', dark_site)
 
-  def toggle_save_button(self, visible):
-    self.header_save.set_visible(visible)
-    self.header_sbox.set_visible(not visible)
-
   def set_zoom_level(self):
     self.webview.set_zoom_level(self.prefs.get('zoom', 1.0))
 
@@ -268,6 +264,9 @@ class DevdocsDesktop:
     if attr and hasattr(self, attr):
       callback = getattr(self, attr)
       callback(data.get('value'))
+
+  def on_apply_button_changed(self, visible):
+    self.header_save.set_visible(visible)
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
@@ -384,16 +383,8 @@ class DevdocsDesktop:
     self.run_javascript('navigate', link)
 
   def on_header_button_save_clicked(self, _widget):
-    self.toggle_save_button(False)
-    self.run_javascript('isVisible', 'saveButton', 'on_apply_button_visibility')
-
-  def on_apply_button_visibility(self, visible):
-    if visible:
-      self.header_title.set_label('Downloading...')
-      self.run_javascript('click', 'saveButton')
-    else:
-      self.header_title.set_label('Saving...')
-      self.run_javascript('navigate', 'home')
+    self.header_title.set_label('Saving...')
+    self.run_javascript('click', 'saveButton')
 
   def on_finder_search_entry_map(self, _widget):
     self.finder_search.grab_focus()
@@ -441,9 +432,8 @@ class DevdocsDesktop:
     self.window.set_title(title)
 
   def on_webview_uri_changed(self, _widget, _uri):
-    save = self.webview.get_uri().endswith('settings')
-    self.toggle_save_button(save)
-    self.sync_header_search()
+    settings = self.webview.get_uri().endswith('settings')
+    self.header_sbox.set_visible(not settings)
 
   def on_history_changed(self, _list, _added, _removed):
     back = self.webview.can_go_back()
