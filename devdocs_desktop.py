@@ -51,7 +51,6 @@ class DevdocsDesktop:
 
     self.app_url   = 'https://devdocs.io'
     self.search    = self.args.parse_args().s.strip()
-    self.filter    = ''
     self.open_link = False
     self.hit_link  = None
     self.options   = self.read_settings_json('cookies')
@@ -255,7 +254,6 @@ class DevdocsDesktop:
     self.header_save.set_visible(visible)
 
   def on_search_tag_changed(self, label):
-    self.filter = label
     self.header_filter.set_label(label)
     self.header_filter.set_visible(bool(label))
 
