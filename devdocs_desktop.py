@@ -51,7 +51,7 @@ class DevdocsDesktop:
 
     self.app_url   = 'https://devdocs.io'
     self.args      = parser.parse_args()
-    self.search    = self.args.s.strip()
+    self.search    = None
     self.open_link = False
     self.hit_link  = None
     self.options   = self.read_settings_json('cookies')
@@ -72,7 +72,6 @@ class DevdocsDesktop:
     self.manager = WebKit2.UserContentManager()
     self.webview = WebKit2.WebView.new_with_user_content_manager(self.manager)
     self.webview.set_settings(self.settings)
-    self.webview.load_uri(self.url_with_search())
 
     self.history = self.webview.get_back_forward_list()
     self.history.connect('changed', self.on_history_changed)
@@ -84,6 +83,7 @@ class DevdocsDesktop:
     self.webview.connect('mouse-target-changed', self.on_mouse_target_changed)
     self.webview.connect('button-release-event', self.on_button_release)
 
+    self.window   = self.main.get_object('window_main')
     self.scrolled = self.main.get_object('scrolled_main')
     self.scrolled.add(self.webview)
 
@@ -110,9 +110,6 @@ class DevdocsDesktop:
     self.finder.connect('found-text', self.on_finder_found_text)
     self.finder.connect('failed-to-find-text', self.on_finder_failed_to_find_text)
 
-    self.window = self.main.get_object('window_main')
-    self.window.show_all()
-
     self.create_settings_path()
     self.inject_custom_styles()
     self.inject_custom_scripts()
@@ -122,19 +119,16 @@ class DevdocsDesktop:
     self.set_zoom_level()
 
   def run(self):
+    self.load_uri(self.args.s.strip())
+    self.window.show_all()
+
     Gtk.main()
 
   def quit(self):
     Gtk.main_quit()
 
-  def search_term(self, term):
-    self.search = term
-    self.header_search.set_text(self.search)
-    self.webview.load_uri(self.url_with_search())
-
-  def url_with_search(self):
-    url = "%s#q=%s" % (self.app_url, self.search)
-    return url
+  def load_uri(self, term):
+    self.webview.load_uri("%s#q=%s" % (self.app_url, term))
 
   def settings_path(self, filepath=''):
     root = "%s/devdocs-desktop" % os.path.expanduser('~/.config')
@@ -469,7 +463,7 @@ class DevdocsDesktopService(dbus.service.Object):
 
   def search(self, argv):
     term = str(argv[-1])
-    self.app.search_term(term)
+    self.app.load_uri(term)
     self.app.window.present_with_time(Gdk.CURRENT_TIME)
 
 
