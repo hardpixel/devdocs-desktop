@@ -128,7 +128,8 @@ class DevdocsDesktop:
     Gtk.main_quit()
 
   def load_uri(self, term):
-    self.webview.load_uri("%s#q=%s" % (self.app_url, term))
+    string = "%s?q=%s" if bool(term) else "%s%s"
+    self.webview.load_uri(string % (self.app_url, term))
 
   def settings_path(self, filepath=''):
     root = "%s/devdocs-desktop" % os.path.expanduser('~/.config')
