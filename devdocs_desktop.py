@@ -41,7 +41,6 @@ CTX_MENU = [
 
 
 class DevdocsDesktop:
-  iconified = False
 
   def __init__(self):
     GLib.set_prgname('devdocs-desktop')
@@ -113,13 +112,6 @@ class DevdocsDesktop:
     self.finder.connect('failed-to-find-text', self.on_finder_failed_to_find_text)
 
     self.window = self.main.get_object('window_main')
-    self.window.connect("window-state-event", self.on_windowStateEvent)
-
-    self.statusIcon = Gtk.StatusIcon()
-    self.statusIcon.set_from_icon_name("devdocs-desktop")
-    self.statusIcon.connect("activate", self.statusIcon_activate)
-    self.statusIcon.connect("button-press-event", self.on_statusIcon_click)
-
     self.window.show_all()
 
     self.create_settings_path()
@@ -135,36 +127,6 @@ class DevdocsDesktop:
 
   def quit(self):
     Gtk.main_quit()
-
-  def on_windowStateEvent(self, widget, event):
-    if (event.changed_mask & Gdk.WindowState.ICONIFIED):
-      if (event.new_window_state & Gdk.WindowState.ICONIFIED):
-        # minimize visible widow. We hide the window to remove it
-        # from the active tasks windows, a click the tray icon will
-        # bring it back
-        self.window.hide()
-        self.iconified = True
-      else:
-        # don't do anything here. The call from hide() above causes a
-        # new event that ends here. And calling show() now will result
-        # in a loop
-        pass
-
-  def statusIcon_activate(self, data):
-    self.window.deiconify()
-    self.window.present() # present the window on the active desktop
-    self.iconified = False
-
-  def on_statusIcon_click(self, data, event):
-    # restore the hidden window on a click on the tray icon
-    if (self.iconified == True):
-      self.window.deiconify()
-      self.window.present()
-      self.iconified = False
-    else:
-      self.window.hide()
-      self.iconified = True
-    return True # dont propagate the event
 
   def search_term(self, term):
     self.search = term
@@ -282,9 +244,6 @@ class DevdocsDesktop:
     group.connect(Gdk.keyval_from_name('KP_0'), ctrl, 0, self.on_zoom_reset_accel_pressed)
     group.connect(Gdk.keyval_from_name('0'), ctrl, 0, self.on_zoom_reset_accel_pressed)
 
-    group.connect(Gdk.keyval_from_name('Prior'), ctrl | Gdk.ModifierType.MOD1_MASK, 0, self.on_PN_accel_pressed)
-    group.connect(Gdk.keyval_from_name('Next'), ctrl | Gdk.ModifierType.MOD1_MASK, 0, self.on_PN_accel_pressed)
-
     self.window.add_accel_group(group)
 
   def sync_header_search(self):
@@ -333,21 +292,6 @@ class DevdocsDesktop:
 
     self.set_zoom_level()
     self.write_settings_json('prefs', self.prefs)
-
-  def on_PN_accel_pressed(self, _group, _widget, _code, _modifier):
-    # when Cntrl+Meta+PgDown or Cntrl+Meta+PgUp is pressed, iconify
-    is_CM = (_modifier & Gdk.ModifierType.MODIFIER_MASK) == \
-            (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.MOD1_MASK)
-    if is_CM:
-      if (self.iconified == True): # doesn't happen
-        self.window.deiconify()
-        self.window.present()
-        self.iconified = False
-      else:
-        self.window.hide()
-        self.iconified = True
-      return True
-    return False
 
   def on_window_main_destroy(self, _event):
     self.quit()
