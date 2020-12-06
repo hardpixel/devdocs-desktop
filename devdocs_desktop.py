@@ -46,11 +46,12 @@ class DevdocsDesktop:
     GLib.set_prgname('devdocs-desktop')
     GLib.set_application_name('DevDocs')
 
-    self.args = argparse.ArgumentParser(prog='devdocs-desktop')
-    self.args.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
+    parser = argparse.ArgumentParser(prog='devdocs-desktop')
+    parser.add_argument('s', metavar='STR', help='the string to search', nargs='?', default='')
 
     self.app_url   = 'https://devdocs.io'
-    self.search    = self.args.parse_args().s.strip()
+    self.args      = parser.parse_args()
+    self.search    = self.args.s.strip()
     self.open_link = False
     self.hit_link  = None
     self.options   = self.read_settings_json('cookies')
