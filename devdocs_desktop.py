@@ -98,7 +98,7 @@ class DevdocsDesktop:
 
     self.header_search = self.main.get_object('header_search_entry')
     self.header_search.get_style_context().remove_class('search')
-    self.header_search.set_text(self.search)
+    self.header_search.set_text('')
 
     self.revealer      = self.main.get_object('revealer_main')
     self.finder_search = self.main.get_object('finder_search_entry')
@@ -242,20 +242,6 @@ class DevdocsDesktop:
 
     self.window.add_accel_group(group)
 
-  def sync_header_search(self):
-    self.run_javascript('getValue', 'searchTag', 'update_header_filter')
-    self.run_javascript('getValue', 'searchInput', 'update_header_search')
-
-  def update_header_filter(self, text):
-    if text != self.filter:
-      self.filter = text
-      self.header_filter.set_label(text)
-      self.header_filter.set_visible(bool(text))
-
-  def update_header_search(self, text):
-    if text != self.search:
-      self.header_search.set_text(text)
-
   def on_script_message(self, manager, data):
     data = data.get_js_value()
     data = json.loads(data.to_json(0))
@@ -267,6 +253,15 @@ class DevdocsDesktop:
 
   def on_apply_button_changed(self, visible):
     self.header_save.set_visible(visible)
+
+  def on_search_tag_changed(self, label):
+    self.filter = label
+    self.header_filter.set_label(label)
+    self.header_filter.set_visible(bool(label))
+
+  def on_search_input_changed(self, text):
+    self.search = text
+    self.header_search.set_text(text)
 
   def on_cookies_changed(self, _manager):
     self.retrieve_cookies_values()
@@ -302,7 +297,6 @@ class DevdocsDesktop:
 
     if kname == 'Tab' and bool(self.search) and search:
       self.run_javascript('sendKey', 'search', kcode)
-      self.sync_header_search()
 
       return True
 
@@ -349,7 +343,6 @@ class DevdocsDesktop:
 
     if kname == 'BackSpace' and not bool(self.search):
       self.run_javascript('sendKey', 'search', kcode)
-      self.sync_header_search()
 
   def on_header_search_entry_key_release_event(self, _widget, event):
     kname = Gdk.keyval_name(event.keyval)

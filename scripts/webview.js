@@ -3,6 +3,7 @@ class DevDocsDesktop {
     this.refs = refs
 
     this.observe('settings', this.syncSettings, { attributes: true }, true)
+    this.observe('searchTag', this.syncSearch, { childList: true }, true)
   }
 
   query(selector) {
@@ -51,6 +52,11 @@ class DevDocsDesktop {
 
   syncSettings() {
     this.isVisible('saveButton', 'on_apply_button_changed')
+  }
+
+  syncSearch() {
+    this.getValue('searchTag', 'on_search_tag_changed')
+    this.getValue('searchInput', 'on_search_input_changed')
   }
 
   isVisible(ref, callback) {
