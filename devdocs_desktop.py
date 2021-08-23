@@ -52,6 +52,7 @@ class DevdocsDesktop:
     self.app_url   = 'https://devdocs.io'
     self.args      = parser.parse_args()
     self.search    = None
+    self.open_tab  = False
     self.open_link = False
     self.hit_link  = None
     self.options   = self.read_settings_json('cookies')
@@ -66,6 +67,9 @@ class DevdocsDesktop:
     self.settings.set_enable_page_cache(True)
     self.settings.set_enable_offline_web_application_cache(True)
 
+    self.settings.set_property('javascript-can-access-clipboard', True)
+    self.settings.set_property('javascript-can-open-windows-automatically', True)
+
     self.cookies = WebKit2.WebContext.get_default().get_cookie_manager()
     self.cookies.connect('changed', self.on_cookies_changed)
 
@@ -78,6 +82,7 @@ class DevdocsDesktop:
 
     self.webview.connect('notify::uri', self.on_webview_uri_changed)
     self.webview.connect('notify::title', self.on_webview_title_changed)
+    self.webview.connect('create', self.on_webview_create)
     self.webview.connect('decide-policy', self.on_webview_decide_policy)
     self.webview.connect('context-menu', self.on_webview_context_menu)
     self.webview.connect('mouse-target-changed', self.on_mouse_target_changed)
@@ -403,15 +408,23 @@ class DevdocsDesktop:
     self.finder_next.set_sensitive(False)
     self.finder_prev.set_sensitive(False)
 
+  def on_webview_create(self, _widget, _action):
+    self.open_tab = True
+
   def on_webview_decide_policy(self, _widget, decision, dtype):
     if dtype == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
       nav = decision.get_navigation_action()
       uri = nav.get_request().get_uri()
 
+      if self.open_tab:
+        webbrowser.open(uri)
+        decision.ignore()
+
       if self.open_link and not uri.startswith(self.app_url):
         webbrowser.open(uri)
         decision.ignore()
 
+      self.open_tab  = False
       self.open_link = False
 
   def on_webview_title_changed(self, _widget, _title):
