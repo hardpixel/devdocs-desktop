@@ -319,8 +319,10 @@ class DevdocsDesktop:
 
     if kname == 'BackSpace':
       self.header_search.grab_focus_without_selecting()
-      self.header_search.delete_text(len(self.search) - 1, -1)
-      self.header_search.set_position(-1)
+
+      if bool(self.search):
+        self.header_search.delete_text(len(self.search) - 1, -1)
+        self.header_search.set_position(-1)
 
     if kname == 'slash':
       self.header_search.grab_focus_without_selecting()
