@@ -16,6 +16,16 @@ python python-gobject python-dbus webkit2gtk
 ## Installation
 Arch Linux: [AUR Package](https://aur.archlinux.org/packages/devdocs-desktop)
 
+Other distros: 
+
+Download the source code as `.tar.gz` or `.zip` and extract. Run in terminal 
+```
+python3 devdocs_desktop.py
+```
+
+Furthermore, you can make this as shortcut as you wish.
+
+
 ## Contributing
 Bug reports and pull requests are welcome on GitHub at https://github.com/hardpixel/devdocs-desktop.
 
